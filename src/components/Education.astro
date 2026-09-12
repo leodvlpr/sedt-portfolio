@@ -2,7 +2,9 @@
 import content from "../data/content.json";
 import SectionHeading from "./SectionHeading.astro";
 
-type School = { institution: string; period: string };
+/* `grade` es opcional a propósito: si una entrada futura no lo trae, se
+   omite esa línea y la ficha sigue mostrando institución y periodo. */
+type School = { institution: string; period: string; grade?: string };
 
 const education: School[] = content.education;
 ---
@@ -10,12 +12,20 @@ const education: School[] = content.education;
 <section id="education" aria-labelledby="education-title" class="py-14">
   <SectionHeading title="Education" id="education" />
 
-  <ul class="mt-6 flex flex-col gap-4">
+  <ul class="mt-6 flex flex-col gap-6">
     {
       education.map((school) => (
-        <li class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <span class="font-medium">{school.institution}</span>
-          <span class="text-sm tabular-nums text-ink/60">{school.period}</span>
+        <li>
+          {school.grade && <p class="font-medium">{school.grade}</p>}
+
+          {/* Segunda línea: institución y periodo enfrentados, con el mismo
+              formato que ya tenía el periodo. */}
+          <div class="mt-1 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+            <span class="text-sm text-ink/70">{school.institution}</span>
+            <span class="text-sm tabular-nums text-ink/60">
+              {school.period}
+            </span>
+          </div>
         </li>
       ))
     }
