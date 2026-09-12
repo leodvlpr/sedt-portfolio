@@ -1,7 +1,7 @@
 ---
 import content from "../data/content.json";
 import ContactIcon from "./ContactIcon.astro";
-import { contactLinks } from "../lib/contactLinks";
+import { contactLinks, mailHref } from "../lib/contactLinks";
 
 const { profile } = content;
 ---
@@ -17,9 +17,11 @@ const { profile } = content;
     <p class="mt-4 text-lg text-ink/70">{profile.role}</p>
     <p class="mt-1 text-sm text-ink/60">{profile.location}</p>
 
+    {/* Mismo destino que el icono de correo: abre el gestor del usuario.
+        Centrado en móvil, alineado a la izquierda desde md. */}
     <a
-      href="#contact"
-      class="mt-10 inline-block rounded-full border-2 border-coral px-8 py-3 text-sm font-medium tracking-[0.12em] hover:bg-coral hover:text-paper"
+      href={mailHref}
+      class="mx-auto mt-10 block w-fit rounded-full border-2 border-coral px-8 py-3 text-sm font-medium tracking-[0.12em] hover:bg-coral hover:text-paper md:mx-0"
     >
       CONTACT ME
     </a>

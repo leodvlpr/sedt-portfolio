@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 import content from "../data/content.json";
+import ContactIcon from "../components/ContactIcon.astro";
+import { ICONS } from "../lib/icons";
 
 interface Props {
   title?: string;
@@ -97,14 +99,17 @@ const navLinks = [
         }
       </ul>
 
+      {/* En claro se ve la luna (pulsar = ir a oscuro); en oscuro, el sol
+          (pulsar = volver a claro). El icono anuncia el destino, no el
+          estado actual. */}
       <button
         type="button"
         id="theme-toggle"
         aria-label="Cambiar entre modo claro y oscuro"
-        class="order-1 ml-auto rounded-full border border-coral px-3 py-1 text-xs font-medium hover:bg-coral hover:text-paper sm:order-2 sm:ml-0"
+        class="order-1 ml-auto grid h-10 w-10 place-items-center rounded-full border border-coral text-coral hover:bg-coral hover:text-paper sm:order-2 sm:ml-0"
       >
-        <span class="dark:hidden">Oscuro</span>
-        <span class="hidden dark:inline">Claro</span>
+        <ContactIcon paths={ICONS.moon} class="dark:hidden" />
+        <ContactIcon paths={ICONS.sun} class="hidden dark:block" />
       </button>
     </nav>
 

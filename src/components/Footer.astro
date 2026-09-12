@@ -1,15 +1,12 @@
 ---
-import content from "../data/content.json";
 import SectionHeading from "./SectionHeading.astro";
 import ContactIcon from "./ContactIcon.astro";
 import { contactLinks } from "../lib/contactLinks";
-
-const { profile } = content;
 ---
 
-{/* Destino de #contact: el botón CONTACT ME del hero y el enlace del nav.
-    Mismos canales y mismos iconos que la barra lateral — ambos leen de
-    contactLinks, así que no pueden desincronizarse. */}
+{/* Destino de #contact: el enlace del nav. Mismos canales y mismos iconos
+    que la barra lateral — ambos leen de contactLinks, así que no pueden
+    desincronizarse. Se muestra el rótulo del canal, no la dirección. */}
 <footer id="contact" aria-labelledby="contact-title" class="py-14">
   <SectionHeading title="Contact" id="contact" />
 
@@ -26,12 +23,14 @@ const { profile } = content;
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-coral text-coral group-hover:bg-coral group-hover:text-paper">
               <ContactIcon paths={link.paths} />
             </span>
-            <span class="border-b-2 border-coral pb-0.5">{link.text}</span>
+            <span class="border-b-2 border-coral pb-0.5">{link.label}</span>
           </a>
         </li>
       ))
     }
   </ul>
 
-  <p class="mt-10 text-sm text-ink/60">{profile.name}</p>
+  <p class="mt-16 text-center text-sm text-ink/60">
+    Leonel Mujica - leodvlpr - All rights reserved © - 2026
+  </p>
 </footer>
