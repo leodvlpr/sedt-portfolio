@@ -3,6 +3,7 @@ import "../styles/global.css";
 import content from "../data/content.json";
 import ContactIcon from "../components/ContactIcon.astro";
 import { ICONS } from "../lib/icons";
+import { asset, home } from "../lib/asset";
 
 interface Props {
   title?: string;
@@ -41,8 +42,15 @@ const navLinks = [
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
 
-    <link rel="icon" type="image/png" href="/logo_lm.png" />
-    <link rel="apple-touch-icon" href="/logo_lm.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      href={asset("logo_lm.png")}
+    />
+    <link
+      rel="apple-touch-icon"
+      href={asset("logo_lm.png")}
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,8 +83,10 @@ const navLinks = [
     <nav
       class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-4 px-6 py-8 sm:flex-nowrap sm:px-10"
     >
+      {/* `home` es la raíz del base; un "/" plano saldría del
+          subdirectorio y llevaría a la raíz del dominio. */}
       <a
-        href="/"
+        href={home}
         class="font-display text-xl font-extrabold tracking-tight"
         aria-label="leodvlpr — inicio"
       >

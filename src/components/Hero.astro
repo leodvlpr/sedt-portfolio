@@ -2,6 +2,7 @@
 import content from "../data/content.json";
 import ContactIcon from "./ContactIcon.astro";
 import { contactLinks, mailHref } from "../lib/contactLinks";
+import { asset } from "../lib/asset";
 
 const { profile } = content;
 ---
@@ -44,7 +45,7 @@ const { profile } = content;
     </div>
 
     <img
-      src="/images/profile_lm.jpeg"
+      src={asset("images/profile_lm.jpeg")}
       alt={`Retrato de ${profile.name}`}
       width="661"
       height="675"
