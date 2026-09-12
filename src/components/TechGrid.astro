@@ -1,0 +1,41 @@
+---
+import content from "../data/content.json";
+
+/* Etiquetas de presentación para las claves de content.json.technologies.
+   Cualquier clave nueva cae al fallback (guiones bajos -> espacios). */
+const labels: Record<string, string> = {
+  testing_automation: "Testing & Automatización",
+  performance: "Performance",
+  test_management: "Gestión de pruebas",
+  ci_cd: "CI/CD",
+};
+
+const groups = Object.entries(content.technologies) as [string, string[]][];
+
+const labelFor = (key: string) => labels[key] ?? key.replace(/_/g, " ");
+---
+
+<section class="border-b border-graphite/15 py-14 dark:border-bone/15">
+  <h2
+    class="text-xs font-medium uppercase tracking-[0.18em] text-muted dark:text-bone/50"
+  >
+    Tecnologías
+  </h2>
+
+  <div class="mt-6 flex flex-col gap-8">
+    {
+      groups.map(([key, items]) => (
+        <div>
+          <h3 class="text-sm font-medium">{labelFor(key)}</h3>
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {items.map((item) => (
+              <li class="rounded-xs border border-graphite/20 px-2.5 py-1 text-sm text-muted dark:border-bone/20 dark:text-bone/70">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,96 @@
+---
+import content from "../data/content.json";
+
+type Job = {
+  company: string;
+  role: string;
+  current?: boolean;
+  domain?: string;
+};
+
+const experience: Job[] = content.experience;
+
+/* Nota: Softvision apunta a cognizant.com (empresa adquirente) — intencional. */
+
+/* logo.clearbit.com dejó de resolver (Clearbit fue absorbida por HubSpot y la Logo
+   API se discontinuó). Usamos el servicio de iconos de DuckDuckGo, que devuelve
+   marcas reales de 32-48px para estos dominios. Si algún día también cae, el
+   onerror deja a la vista el monograma que hay debajo. */
+const logoUrl = (domain: string) =>
+  `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+
+const rowClass =
+  "flex items-center gap-4 rounded-sm border border-graphite/15 px-4 py-4 dark:border-bone/15";
+---
+
+<section class="border-b border-graphite/15 py-14 dark:border-bone/15">
+  <h2
+    class="text-xs font-medium uppercase tracking-[0.18em] text-muted dark:text-bone/50"
+  >
+    Experiencia
+  </h2>
+
+  <ul class="mt-6 flex flex-col gap-3">
+    {
+      experience.map((job) => {
+        const hasDomain = Boolean(job.domain);
+
+        const body = (
+          <>
+            <span
+              aria-hidden="true"
+              class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xs border border-graphite/15 dark:border-bone/15"
+            >
+              <span class="text-xs font-medium text-muted dark:text-bone/50">
+                {job.company.charAt(0)}
+              </span>
+              {hasDomain && (
+                <img
+                  src={logoUrl(job.domain!)}
+                  alt=""
+                  width="32"
+                  height="32"
+                  loading="lazy"
+                  decoding="async"
+                  onerror="this.remove()"
+                  class="absolute inset-0 h-full w-full bg-bone object-contain"
+                />
+              )}
+            </span>
+
+            <span class="min-w-0 flex-1">
+              <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span class="font-medium">{job.company}</span>
+                {job.current && (
+                  <span class="rounded-xs border border-accent px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
+                    Actual
+                  </span>
+                )}
+              </span>
+              <span class="mt-0.5 block text-sm text-muted dark:text-bone/60">
+                {job.role}
+              </span>
+            </span>
+          </>
+        );
+
+        return (
+          <li>
+            {hasDomain ? (
+              <a
+                href={`https://${job.domain}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={`${rowClass} hover:border-accent`}
+              >
+                {body}
+              </a>
+            ) : (
+              <div class={rowClass}>{body}</div>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

@@ -1,0 +1,24 @@
+---
+import content from "../data/content.json";
+
+const recognition: string[] = content.recognition;
+---
+
+<section class="border-b border-graphite/15 py-14 dark:border-bone/15">
+  <h2
+    class="text-xs font-medium uppercase tracking-[0.18em] text-muted dark:text-bone/50"
+  >
+    Reconocimientos
+  </h2>
+
+  <ul class="mt-6 flex flex-col gap-4">
+    {
+      recognition.map((item) => (
+        <li class="flex gap-3 text-base leading-relaxed">
+          <span aria-hidden="true" class="mt-2.5 h-px w-4 shrink-0 bg-accent" />
+          <span class="text-muted dark:text-bone/70">{item}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

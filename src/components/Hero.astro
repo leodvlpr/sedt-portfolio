@@ -1,0 +1,36 @@
+---
+import content from "../data/content.json";
+
+const { profile } = content;
+---
+
+<header class="mt-10 border-b border-graphite/15 pb-14 dark:border-bone/15">
+  <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
+    {profile.name}
+  </h1>
+
+  <p class="mt-3 text-lg text-accent">{profile.role}</p>
+
+  <p class="mt-1 text-sm text-muted dark:text-bone/60">{profile.location}</p>
+
+  <p class="mt-8 max-w-xl text-base leading-relaxed text-muted dark:text-bone/70">
+    {profile.summary}
+  </p>
+
+  <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+    <a
+      href={`mailto:${profile.email}`}
+      class="border-b border-accent/40 pb-0.5 text-accent hover:border-accent"
+    >
+      {profile.email}
+    </a>
+    <a
+      href={profile.linkedin}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="border-b border-accent/40 pb-0.5 text-accent hover:border-accent"
+    >
+      LinkedIn
+    </a>
+  </div>
+</header>

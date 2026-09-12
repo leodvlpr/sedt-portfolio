@@ -1,0 +1,31 @@
+{
+  "profile": {
+    "name": "Leonel Mujica",
+    "role": "QA Lead & Software Engineer in Test",
+    "location": "Madrid, España",
+    "summary": "10+ años de experiencia corporativa en QA.",
+    "email": "leonelmujica0203@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/leonel-mujica/"
+  },
+  "experience": [
+    { "company": "Holafly", "role": "QA Lead", "current": true, "domain": "holafly.com" },
+    { "company": "Holafly", "role": "Software Engineer Developer in Test", "domain": "holafly.com" },
+    { "company": "Platzi", "role": "Senior QA Specialist", "domain": "platzi.com" },
+    { "company": "Softvision", "role": "Senior QA Engineer", "domain": "cognizant.com" },
+    { "company": "Rappi", "role": "QA Engineer", "domain": "rappi.com" }
+  ],
+  "technologies": {
+    "testing_automation": ["Cypress", "Playwright", "Appium", "Karate", "Cucumber/Gherkin"],
+    "performance": ["JMeter", "Locust", "Grafana k6"],
+    "test_management": ["TestLink", "Zephyr", "Xray"],
+    "ci_cd": ["GitHub Actions", "Claude Code (CI/CD)"]
+  },
+  "recognition": [
+    "Cypress Ambassador (2024–2026, segundo año consecutivo)",
+    "Ponente en QA summits y charlas B2B sobre procesos de calidad y certificación ISO"
+  ],
+  "education": [
+    { "institution": "Escuela Da Vinci", "period": "2017–2021" },
+    { "institution": "Centro Gráfico de Tecnología", "period": "2012–2015" }
+  ]
+}

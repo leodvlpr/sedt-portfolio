@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/* Dark mode is driven by a `.dark` class on <html>, set from localStorage in
+   Layout.astro — not by prefers-color-scheme alone. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-graphite: #1d1d1b;
+  --color-muted: #5f5e5a;
+  --color-bone: #f1efe8;
+  --color-ink: #0f0f0e;
+  --color-accent: #0f6e56;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+}
+
+/* El acento #0F6E56 rinde 5.38:1 sobre hueso, pero sólo 3.09:1 sobre #0F0F0E —
+   por debajo de AA. En oscuro usamos el mismo verde-teal (mismo hue) aclarado
+   hasta 4.88:1. Al redefinir el token, todas las utilidades `*-accent` se
+   adaptan solas: los componentes no cambian.
+   Va fuera de @layer a propósito, para ganarle a :root de @theme. */
+.dark {
+  --color-accent: #199272;
+}
+
+/* No transitions anywhere in this phase; the theme toggle opts back in locally. */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
