@@ -26,8 +26,9 @@
     "ci_cd": ["GitHub Actions", "Claude Code (CI/CD)"]
   },
   "recognition": [
-    "Cypress Ambassador (2024–2026, segundo año consecutivo)",
-    "Ponente en QA summits y charlas B2B sobre procesos de calidad y certificación ISO"
+    "Cypress Ambassador (2024–2026, second consecutive year)",
+    "Speaker at QA summits",
+    "B2B talks on quality processes and ISO certification"
   ],
   "education": [
     { "institution": "Escuela Da Vinci", "period": "2017–2021" },
