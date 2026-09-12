@@ -6,27 +6,31 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-graphite: #1d1d1b;
-  --color-muted: #5f5e5a;
-  --color-bone: #f1efe8;
-  --color-ink: #0f0f0e;
-  --color-accent: #0f6e56;
+  /* Paleta literal */
+  --color-navy: #1b1a3b;
+  --color-coral: #e2705c;
+  --color-paper: #ffffff;
+
+  /* Tokens semánticos: se invierten en oscuro. Los componentes usan éstos,
+     nunca los literales, salvo el coral (que es constante por diseño). */
+  --color-ink: #1b1a3b;
+  --color-surface: #ffffff;
 
   --radius-xs: 6px;
   --radius-sm: 8px;
 }
 
-/* El acento #0F6E56 rinde 5.38:1 sobre hueso, pero sólo 3.09:1 sobre #0F0F0E —
-   por debajo de AA. En oscuro usamos el mismo verde-teal (mismo hue) aclarado
-   hasta 4.88:1. Al redefinir el token, todas las utilidades `*-accent` se
-   adaptan solas: los componentes no cambian.
-   Va fuera de @layer a propósito, para ganarle a :root de @theme. */
+/* "Invierte fondo/texto manteniendo el mismo coral como acento": basta con
+   cruzar los dos tokens semánticos. Ningún componente necesita variantes
+   `dark:` para color de texto o fondo.
+   Va fuera de @layer a propósito, para ganarle al :root que emite @theme. */
 .dark {
-  --color-accent: #199272;
+  --color-ink: #ffffff;
+  --color-surface: #1b1a3b;
 }
 
-/* No transitions anywhere in this phase; the theme toggle opts back in locally. */
 html {
   -webkit-text-size-adjust: 100%;
 }

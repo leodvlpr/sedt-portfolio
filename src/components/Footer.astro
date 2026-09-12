@@ -1,25 +1,30 @@
 ---
 import content from "../data/content.json";
+import SectionHeading from "./SectionHeading.astro";
 
 const { profile } = content;
 ---
 
-<footer
-  class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-12 text-sm"
->
-  <span class="text-muted dark:text-bone/50">{profile.name}</span>
+{/* Destino de #contact: el botón CONTACT ME del hero y el enlace del nav. */}
+<footer id="contact" aria-labelledby="contact-title" class="py-14">
+  <SectionHeading title="Contact" id="contact" />
 
-  <div class="flex flex-wrap gap-x-6 gap-y-2">
-    <a href={`mailto:${profile.email}`} class="text-accent hover:underline">
+  <div class="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+    <a
+      href={`mailto:${profile.email}`}
+      class="border-b-2 border-coral pb-0.5 hover:text-coral"
+    >
       {profile.email}
     </a>
     <a
       href={profile.linkedin}
       target="_blank"
       rel="noopener noreferrer"
-      class="text-accent hover:underline"
+      class="border-b-2 border-coral pb-0.5 hover:text-coral"
     >
       LinkedIn
     </a>
   </div>
+
+  <p class="mt-10 text-sm text-ink/60">{profile.name}</p>
 </footer>

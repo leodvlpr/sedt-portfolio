@@ -1,26 +1,21 @@
 ---
 import content from "../data/content.json";
+import SectionHeading from "./SectionHeading.astro";
 
 type School = { institution: string; period: string };
 
 const education: School[] = content.education;
 ---
 
-<section class="border-b border-graphite/15 py-14 dark:border-bone/15">
-  <h2
-    class="text-xs font-medium uppercase tracking-[0.18em] text-muted dark:text-bone/50"
-  >
-    Educación
-  </h2>
+<section id="education" aria-labelledby="education-title" class="py-14">
+  <SectionHeading title="Education" id="education" />
 
   <ul class="mt-6 flex flex-col gap-4">
     {
       education.map((school) => (
         <li class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
           <span class="font-medium">{school.institution}</span>
-          <span class="text-sm tabular-nums text-muted dark:text-bone/60">
-            {school.period}
-          </span>
+          <span class="text-sm tabular-nums text-ink/60">{school.period}</span>
         </li>
       ))
     }

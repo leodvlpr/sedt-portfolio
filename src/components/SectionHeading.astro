@@ -1,0 +1,23 @@
+---
+/* Encabezado del nuevo lenguaje visual: título en display bold con una línea
+   coral AL LADO (no debajo). Lo comparten About, Experience, TechGrid,
+   Recognition, Education, Projects y Contact. */
+
+interface Props {
+  title: string;
+  /* id del <section> contenedor; se usa para el aria-labelledby del heading */
+  id?: string;
+}
+
+const { title, id } = Astro.props;
+---
+
+<div class="flex items-center gap-5">
+  <h2
+    id={id ? `${id}-title` : undefined}
+    class="font-display text-2xl font-extrabold tracking-tight text-ink sm:text-3xl"
+  >
+    {title}
+  </h2>
+  <span aria-hidden="true" class="h-0.5 flex-1 bg-coral"></span>
+</div>

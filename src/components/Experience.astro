@@ -1,5 +1,6 @@
 ---
 import content from "../data/content.json";
+import SectionHeading from "./SectionHeading.astro";
 
 type Job = {
   company: string;
@@ -20,15 +21,11 @@ const logoUrl = (domain: string) =>
   `https://icons.duckduckgo.com/ip3/${domain}.ico`;
 
 const rowClass =
-  "flex items-center gap-4 rounded-sm border border-graphite/15 px-4 py-4 dark:border-bone/15";
+  "flex items-center gap-4 rounded-sm border border-ink/15 px-4 py-4";
 ---
 
-<section class="border-b border-graphite/15 py-14 dark:border-bone/15">
-  <h2
-    class="text-xs font-medium uppercase tracking-[0.18em] text-muted dark:text-bone/50"
-  >
-    Experiencia
-  </h2>
+<section id="experience" aria-labelledby="experience-title" class="py-14">
+  <SectionHeading title="Experience" id="experience" />
 
   <ul class="mt-6 flex flex-col gap-3">
     {
@@ -39,9 +36,9 @@ const rowClass =
           <>
             <span
               aria-hidden="true"
-              class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xs border border-graphite/15 dark:border-bone/15"
+              class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xs border border-ink/15"
             >
-              <span class="text-xs font-medium text-muted dark:text-bone/50">
+              <span class="text-xs font-medium text-ink/50">
                 {job.company.charAt(0)}
               </span>
               {hasDomain && (
@@ -53,7 +50,7 @@ const rowClass =
                   loading="lazy"
                   decoding="async"
                   onerror="this.remove()"
-                  class="absolute inset-0 h-full w-full bg-bone object-contain"
+                  class="absolute inset-0 h-full w-full bg-paper object-contain"
                 />
               )}
             </span>
@@ -62,14 +59,12 @@ const rowClass =
               <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span class="font-medium">{job.company}</span>
                 {job.current && (
-                  <span class="rounded-xs border border-accent px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
+                  <span class="rounded-xs border border-coral px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-coral">
                     Actual
                   </span>
                 )}
               </span>
-              <span class="mt-0.5 block text-sm text-muted dark:text-bone/60">
-                {job.role}
-              </span>
+              <span class="mt-0.5 block text-sm text-ink/60">{job.role}</span>
             </span>
           </>
         );
@@ -81,7 +76,7 @@ const rowClass =
                 href={`https://${job.domain}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                class={`${rowClass} hover:border-accent`}
+                class={`${rowClass} hover:border-coral`}
               >
                 {body}
               </a>
