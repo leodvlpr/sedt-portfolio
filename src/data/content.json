@@ -20,7 +20,7 @@
     { "company": "Rappi", "role": "QA Engineer", "domain": "rappi.com" }
   ],
   "technologies": {
-    "testing_automation": ["Cypress", "Playwright", "Appium", "Karate", "Cucumber/Gherkin"],
+    "testing_automation": ["Cypress", "Playwright", "Selenium", "Appium", "Karate", "Cucumber/Gherkin"],
     "performance": ["JMeter", "Locust", "Grafana k6"],
     "test_management": ["TestLink", "Zephyr", "Xray"],
     "ci_cd": ["GitHub Actions", "Claude Code (CI/CD)"]
