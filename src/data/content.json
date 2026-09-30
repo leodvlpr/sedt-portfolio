@@ -33,5 +33,13 @@
   "education": [
     { "institution": "Escuela Da Vinci", "period": "2017–2021", "grade": "Systems Analyst" },
     { "institution": "Centro Gráfico de Tecnología", "period": "2012–2015", "grade": "Graphic Design" }
+  ],
+  "projects": [
+    {
+      "name": "Playwright Framework",
+      "description": "End-to-end (E2E) automation framework with a layered architecture (pages, components, fixtures) built on Playwright + TypeScript, with automated failure analysis via Claude Code integrated into the CI/CD pipeline.",
+      "stack": ["Playwright", "TypeScript", "GitHub Actions", "Claude Code"],
+      "url": "https://github.com/leodvlpr/saucedemo-playwright-framework"
+    }
   ]
 }

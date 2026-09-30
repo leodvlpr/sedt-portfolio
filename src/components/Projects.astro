@@ -1,12 +1,56 @@
 ---
+import content from "../data/content.json";
 import SectionHeading from "./SectionHeading.astro";
 
-/* Placeholder: content.json todavía no tiene datos de proyectos. La sección
-   existe para que el enlace "Projects" del nav resuelva a algo real. */
+type Project = {
+  name: string;
+  description: string;
+  stack: string[];
+  url: string;
+};
+
+const projects: Project[] = content.projects;
+
+/* Misma ficha que las filas de Experience (borde de 1px, radio sm, coral al
+   pasar por encima); cambia sólo el relleno interior, porque aquí hay tres
+   bloques apilados en vez de una línea. */
+const cardClass =
+  "block rounded-sm border border-ink/15 px-4 py-4 hover:border-coral";
 ---
 
 <section id="projects" aria-labelledby="projects-title" class="py-14">
   <SectionHeading title="Projects" id="projects" />
 
-  <p class="mt-6 text-base text-ink/60">Loading...</p>
+  {/* Columna única a la medida de About: con un solo proyecto una rejilla
+      ancha dejaría la ficha suelta en medio del hueco. Cuando la lista crezca
+      las fichas se apilan sin tocar el layout. */}
+  <ul class="mt-6 flex max-w-2xl flex-col gap-4">
+    {
+      projects.map((project) => (
+        <li>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={cardClass}
+          >
+            <h3 class="font-medium">{project.name}</h3>
+
+            <p class="mt-2 text-sm leading-relaxed text-ink/70">
+              {project.description}
+            </p>
+
+            {/* Mismas etiquetas que TechGrid. */}
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {project.stack.map((item) => (
+                <li class="rounded-xs border border-ink/20 px-2.5 py-1 text-sm text-ink/70">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </section>
