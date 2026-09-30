@@ -39,19 +39,23 @@ Tailwind v4 is installed, its Vite plugin is registered in [astro.config.mjs](as
 
 Tailwind v4 is configured in CSS, not JavaScript — there is no `tailwind.config.js`, and adding one will not be read. The design system lives in `global.css`:
 
-- `@theme` holds the tokens: `--color-graphite` #1D1D1B (text), `--color-muted` #5F5E5A (secondary), `--color-bone` #F1EFE8 (light background), `--color-ink` #0F0F0E (dark background), `--color-accent` #0F6E56, plus `--radius-xs` 6px / `--radius-sm` 8px and Inter as `--font-sans`.
+- `@theme` holds the tokens in two tiers. The literals are `--color-navy` #1B1A3B, `--color-coral` #E2705C and `--color-paper` #FFFFFF; the semantic pair components actually use is `--color-ink` (text) and `--color-surface` (background). Alongside them: `--radius-xs` 6px / `--radius-sm` 8px, Inter as `--font-sans` and Poppins as `--font-display`.
 - Dark mode keys off a `.dark` class on `<html>`, declared with `@custom-variant` — deliberately not `prefers-color-scheme`, so the toggle can override the OS. An inline script in the layout head applies it before first paint to avoid a flash.
-- `.dark` also redefines `--color-accent` to #199272. The base accent only reaches 3.09:1 against the dark background, below WCAG AA; the lighter tone measures 4.93:1 at the same hue. Because the *token* is redefined rather than the components, every `*-accent` utility adapts on its own — so never hard-code an accent colour in a component. That rule is also why the redefinition sits outside `@layer`: it has to win over the `:root` that `@theme` emits.
+- `.dark` swaps the two semantic tokens — `--color-ink` becomes #FFFFFF and `--color-surface` #1B1A3B — so the dark theme is the light one inverted, not a second palette. Because the *tokens* flip rather than the components, every `text-ink` / `bg-surface` / `border-ink/15` utility adapts on its own and no component needs a `dark:` variant for text or background colour. Use the semantic names, never `navy`; that rule is also why the redefinition sits outside `@layer`: it has to win over the `:root` that `@theme` emits.
+- Coral is the constant — the same accent in both themes, by design, so it is the one token that never flips. It measures 3.13:1 on the light surface and 5.33:1 on the dark one. That is fine for the 1px rules, borders and icon strokes it mostly carries, and for the large display logo, but it is below WCAG AA wherever it lands on small text: the `Actual` badge in Experience and the `hover:text-coral` nav and footer links. Prefer `text-ink/70` for body copy.
+- `--color-paper` is also constant, and is not a background token: it is white-that-stays-white, for content sitting on a coral fill (button and icon-circle hovers) and for the logo backdrop in Experience.
 
 Visual rules: 1px borders, no shadows, generous whitespace, editorial layout.
 
-This phase is deliberately static — no animations, transitions, or scroll effects. The one exception is the theme toggle's colour transition. Keep it that way unless asked otherwise.
+This phase is deliberately static — no animations, transitions, or scroll effects, and right now `src/` contains not one `transition-*` or `animate-*` utility. Keep it that way unless asked otherwise.
 
 ## State of the code
 
-One route, [src/pages/index.astro](src/pages/index.astro), assembling the portfolio in the order Hero → Experience → TechGrid → Recognition → Education → Footer inside [src/layouts/Layout.astro](src/layouts/Layout.astro).
+One route, [src/pages/index.astro](src/pages/index.astro), assembling the portfolio in the order Hero → About → Experience → Projects → TechGrid → Recognition → Education → Footer inside [src/layouts/Layout.astro](src/layouts/Layout.astro).
 
-Every piece of copy comes from [src/data/content.json](src/data/content.json) — profile, experience, technologies, recognition, education. Components read it directly; don't hard-code content, and don't invent fields that aren't there.
+Every section except Hero opens with [src/components/SectionHeading.astro](src/components/SectionHeading.astro) — a bold display title with a coral rule beside it, not under it — and each lives in a `<section id>` wired to `aria-labelledby="{id}-title"`. Those ids are the nav's anchors: the three `navLinks` in the layout point at `#about`, `#projects` and `#contact`, and `#contact` is the Footer. Adding a section means adding the heading and the id together, or the nav and the landmark labels drift apart.
+
+Every piece of copy comes from [src/data/content.json](src/data/content.json) — `profile` (including `profile.about`, the About paragraphs, kept separate from the shorter `profile.summary` that feeds the meta description), `experience`, `technologies`, `recognition`, `education` and `projects`. Components read it directly; don't hard-code content, and don't invent fields that aren't there.
 
 Two things in [src/components/Experience.astro](src/components/Experience.astro) look like bugs but are not:
 
