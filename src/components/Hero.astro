@@ -55,11 +55,16 @@ const { profile } = content;
   </div>
 </section>
 
-{/* Barra lateral fija. Oculta bajo lg: en móvil los mismos enlaces viven en
-    la sección de contacto, así que no se pierde nada. */}
+{/* Barra lateral fija. Ocupa 56px a la derecha (icono de 40 + pr-4) y el
+    contenido llega hasta vw/2 + 472 (max-w-5xl menos px-10), así que para
+    dejar 16px de aire entre ambos hace falta vw >= 1088. Con el lg (1024px)
+    de antes aparecía demasiado pronto: entre 1024 y 1055 se solapaban, y la
+    línea coral de cada encabezado entraba hasta 16px dentro de los iconos.
+    Por debajo de 1088 los mismos enlaces viven en la sección de contacto,
+    así que no se pierde nada. */}
 {
   contactLinks.length > 0 && (
-    <aside class="fixed right-0 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
+    <aside class="fixed right-0 top-1/2 z-10 hidden -translate-y-1/2 min-[1088px]:block">
       <ul class="flex flex-col gap-3 pr-4">
         {contactLinks.map((link) => (
           <li>
