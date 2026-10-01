@@ -39,7 +39,9 @@
       "name": "Playwright Framework",
       "description": "End-to-end (E2E) automation framework with a layered architecture (pages, components, fixtures) built on Playwright + TypeScript, with automated failure analysis via Claude Code integrated into the CI/CD pipeline.",
       "stack": ["Playwright", "TypeScript", "GitHub Actions", "Claude Code"],
-      "url": "https://github.com/leodvlpr/saucedemo-playwright-framework"
+      "url": "https://github.com/leodvlpr/saucedemo-playwright-framework",
+      "video": "videos/test-run.mp4",
+      "poster": "images/test-run-poster.jpg"
     }
   ]
 }

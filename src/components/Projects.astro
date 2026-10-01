@@ -1,21 +1,20 @@
 ---
 import content from "../data/content.json";
 import SectionHeading from "./SectionHeading.astro";
+import { asset } from "../lib/asset";
 
+/* `video` y `poster` son opcionales: un proyecto sin demo renderiza la ficha
+   igual, sólo que sin el bloque del vídeo. */
 type Project = {
   name: string;
   description: string;
   stack: string[];
   url: string;
+  video?: string;
+  poster?: string;
 };
 
 const projects: Project[] = content.projects;
-
-/* Misma ficha que las filas de Experience (borde de 1px, radio sm, coral al
-   pasar por encima); cambia sólo el relleno interior, porque aquí hay tres
-   bloques apilados en vez de una línea. */
-const cardClass =
-  "block rounded-sm border border-ink/15 px-4 py-4 hover:border-coral";
 ---
 
 <section id="projects" aria-labelledby="projects-title" class="py-14">
@@ -26,14 +25,11 @@ const cardClass =
       las fichas se apilan sin tocar el layout. */}
   <ul class="mt-6 flex max-w-2xl flex-col gap-4">
     {
-      projects.map((project) => (
-        <li>
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class={cardClass}
-          >
+      projects.map((project, i) => {
+        const videoId = `project-video-${i}`;
+
+        return (
+          <li class="rounded-sm border border-ink/15 px-4 py-4">
             <h3 class="font-medium">{project.name}</h3>
 
             <p class="mt-2 text-sm leading-relaxed text-ink/70">
@@ -48,9 +44,76 @@ const cardClass =
                 </li>
               ))}
             </ul>
-          </a>
-        </li>
-      ))
+
+            {/* Estado por defecto: miniatura estática. El <video> va al margen
+                con preload="none" y hidden, así que al cargar la página no se
+                pide ni un byte del mp4; el navegador sólo lo busca cuando el
+                usuario le da a reproducir. */}
+            {project.video && (
+              <div class="mt-4" data-video-card>
+                <button
+                  type="button"
+                  data-video-play
+                  aria-controls={videoId}
+                  class="group block w-full overflow-hidden rounded-xs border border-ink/15 hover:border-coral"
+                >
+                  {project.poster && (
+                    <img
+                      src={asset(project.poster)}
+                      alt=""
+                      width="1280"
+                      height="682"
+                      loading="lazy"
+                      decoding="async"
+                      class="block w-full"
+                    />
+                  )}
+                  <span class="block border-t border-ink/15 px-3 py-2 text-sm text-ink/70 group-hover:text-coral">
+                    Watch demo
+                  </span>
+                </button>
+
+                <video
+                  id={videoId}
+                  data-video
+                  hidden
+                  controls
+                  preload="none"
+                  poster={project.poster ? asset(project.poster) : undefined}
+                  class="block w-full rounded-xs border border-ink/15"
+                >
+                  <source src={asset(project.video)} type="video/mp4" />
+                </video>
+              </div>
+            )}
+
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-4 inline-block border-b-2 border-coral pb-0.5 text-sm hover:text-coral"
+            >
+              View on GitHub
+            </a>
+          </li>
+        );
+      })
     }
   </ul>
 </section>
+
+{/* Revelar, no reproducir: el vídeo aparece con sus controles y es el usuario
+    quien pulsa play. Nada se reproduce solo. */}
+<script>
+  document.querySelectorAll<HTMLElement>("[data-video-card]").forEach((card) => {
+    const trigger = card.querySelector<HTMLButtonElement>("[data-video-play]");
+    const video = card.querySelector<HTMLVideoElement>("[data-video]");
+    if (!trigger || !video) return;
+
+    trigger.addEventListener("click", () => {
+      video.hidden = false;
+      trigger.hidden = true;
+      video.focus();
+    });
+  });
+</script>
