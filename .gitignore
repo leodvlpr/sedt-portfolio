@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# task briefs: notas de trabajo, no forman parte del sitio
+docs/tasks/

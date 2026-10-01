@@ -1,13 +1,13 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 
 /* Etiquetas de presentación para las claves de content.json.technologies.
    Cualquier clave nueva cae al fallback (guiones bajos -> espacios). */
 const labels: Record<string, string> = {
-  testing_automation: "Testing & Automatización",
+  testing_automation: "Testing & Automation",
   performance: "Performance",
-  test_management: "Gestión de pruebas",
+  test_management: "Test management",
   ci_cd: "CI/CD",
 };
 
@@ -16,23 +16,73 @@ const groups = Object.entries(content.technologies) as [string, string[]][];
 const labelFor = (key: string) => labels[key] ?? key.replace(/_/g, " ");
 ---
 
-<section id="technologies" aria-labelledby="technologies-title" class="py-14">
-  <SectionHeading title="Technologies" id="technologies" />
-
-  <div class="mt-6 flex flex-col gap-8">
+{/* La sección más densa de la página es también la única con fondo propio:
+    el cambio de suelo es lo que le da ritmo al scroll, sin recurrir a una
+    banda invertida que en modo oscuro quedaría como un bloque cegador. */}
+<Section id="technologies" title="Technologies" tone="shade">
+  <div class="stack">
     {
       groups.map(([key, items]) => (
-        <div>
-          <h3 class="text-sm font-medium">{labelFor(key)}</h3>
-          <ul class="mt-3 flex flex-wrap gap-2">
+        <div class="group">
+          <h3 class="group__name">{labelFor(key)}</h3>
+          <ul class="chips">
             {items.map((item) => (
-              <li class="rounded-xs border border-ink/20 px-2.5 py-1 text-sm text-ink/70">
-                {item}
-              </li>
+              <li>{item}</li>
             ))}
           </ul>
         </div>
       ))
     }
   </div>
-</section>
+</Section>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .group {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  }
+
+  .group:first-child {
+    padding-top: 0;
+  }
+
+  .group:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .group__name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Sin hover: son etiquetas, no botones. */
+  .chips li {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  @media (min-width: 720px) {
+    .group {
+      grid-template-columns: 13rem minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+  }
+</style>

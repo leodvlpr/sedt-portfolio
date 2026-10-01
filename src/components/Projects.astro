@@ -1,6 +1,8 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
+import ContactIcon from "./ContactIcon.astro";
+import { ICONS } from "../lib/icons";
 import { asset } from "../lib/asset";
 
 /* `video` y `poster` son opcionales: un proyecto sin demo renderiza la ficha
@@ -17,31 +19,21 @@ type Project = {
 const projects: Project[] = content.projects;
 ---
 
-<section id="projects" aria-labelledby="projects-title" class="py-14">
-  <SectionHeading title="Projects" id="projects" />
-
-  {/* Columna única a la medida de About: con un solo proyecto una rejilla
-      ancha dejaría la ficha suelta en medio del hueco. Cuando la lista crezca
-      las fichas se apilan sin tocar el layout. */}
-  <ul class="mt-6 flex max-w-2xl flex-col gap-4">
+<Section id="projects" title="Projects">
+  <ul class="cards">
     {
       projects.map((project, i) => {
         const videoId = `project-video-${i}`;
 
         return (
-          <li class="rounded-sm border border-ink/15 px-4 py-4">
-            <h3 class="font-medium">{project.name}</h3>
+          <li class="card">
+            <h3 class="card__name">{project.name}</h3>
 
-            <p class="mt-2 text-sm leading-relaxed text-ink/70">
-              {project.description}
-            </p>
+            <p class="card__text">{project.description}</p>
 
-            {/* Mismas etiquetas que TechGrid. */}
-            <ul class="mt-4 flex flex-wrap gap-2">
+            <ul class="chips">
               {project.stack.map((item) => (
-                <li class="rounded-xs border border-ink/20 px-2.5 py-1 text-sm text-ink/70">
-                  {item}
-                </li>
+                <li>{item}</li>
               ))}
             </ul>
 
@@ -50,12 +42,13 @@ const projects: Project[] = content.projects;
                 pide ni un byte del mp4; el navegador sólo lo busca cuando el
                 usuario le da a reproducir. */}
             {project.video && (
-              <div class="mt-4" data-video-card>
+              <div class="demo" data-video-card>
                 <button
                   type="button"
+                  class="demo__trigger"
                   data-video-play
                   aria-controls={videoId}
-                  class="group block w-full overflow-hidden rounded-xs border border-ink/15 hover:border-coral"
+                  aria-label={`Play the ${project.name} demo`}
                 >
                   {project.poster && (
                     <img
@@ -65,11 +58,11 @@ const projects: Project[] = content.projects;
                       height="682"
                       loading="lazy"
                       decoding="async"
-                      class="block w-full"
                     />
                   )}
-                  <span class="block border-t border-ink/15 px-3 py-2 text-sm text-ink/70 group-hover:text-coral">
-                    Watch demo
+
+                  <span class="icon-btn demo__play" aria-hidden="true">
+                    <ContactIcon paths={ICONS.play} />
                   </span>
                 </button>
 
@@ -80,30 +73,37 @@ const projects: Project[] = content.projects;
                   controls
                   preload="none"
                   poster={project.poster ? asset(project.poster) : undefined}
-                  class="block w-full rounded-xs border border-ink/15"
                 >
                   <source src={asset(project.video)} type="video/mp4" />
                 </video>
               </div>
             )}
 
-            <a
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-4 inline-block border-b-2 border-coral pb-0.5 text-sm hover:text-coral"
-            >
-              View on GitHub
-            </a>
+            {/* El rótulo pasa a icono en la esquina inferior derecha. Al no
+                quedar texto visible, el nombre accesible lo da aria-label y
+                nombra el proyecto, no un genérico "GitHub". */}
+            <div class="card__foot">
+              <a
+                class="icon-btn"
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${project.name} on GitHub`}
+              >
+                <ContactIcon paths={ICONS.github} />
+              </a>
+            </div>
           </li>
         );
       })
     }
   </ul>
-</section>
+</Section>
 
-{/* Revelar, no reproducir: el vídeo aparece con sus controles y es el usuario
-    quien pulsa play. Nada se reproduce solo. */}
+{/* Nada se reproduce solo: el mp4 sigue con preload="none" y no se pide un
+    byte hasta que el usuario pulsa el botón de play. A partir de ahí, un solo
+    gesto — el clic revela el vídeo Y lo arranca, en vez de obligar a pulsar
+    play dos veces. */}
 <script>
   document.querySelectorAll<HTMLElement>("[data-video-card]").forEach((card) => {
     const trigger = card.querySelector<HTMLButtonElement>("[data-video-play]");
@@ -114,6 +114,140 @@ const projects: Project[] = content.projects;
       video.hidden = false;
       trigger.hidden = true;
       video.focus();
+      /* El clic es un gesto del usuario, así que la política de autoplay lo
+         permite; aun así play() devuelve una promesa que puede rechazarse
+         (códec no soportado, por ejemplo) y sin catch quedaría sin manejar.
+         Si falla, el vídeo ya está visible con sus propios controles. */
+      void video.play().catch(() => {});
     });
   });
 </script>
+
+<style>
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 44rem;
+  }
+
+  /* La única tarjeta de la página, y a escuadra: el radio queda reservado
+     para lo que se pulsa. */
+  .card {
+    position: relative;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    padding: 1.5rem;
+  }
+
+  /* Misma regla coral que el resto de hovers, aquí sobre el canto superior
+     de la ficha. */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset-inline: -1px;
+    top: -1px;
+    height: 2px;
+    background: var(--color-coral);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .card:hover::before,
+  .card:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .card__name {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .card__text {
+    margin-top: 0.65rem;
+    max-width: 62ch;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  /* Las fichas de stack no son interactivas, así que no llevan hover. */
+  .chips li {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    border-radius: 9999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+
+  .demo {
+    margin-top: 1.5rem;
+  }
+
+  .demo__trigger {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background: none;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .demo__trigger img {
+    display: block;
+    width: 100%;
+  }
+
+  /* El disco lo da `.icon-btn`; aquí sólo el centrado sobre la miniatura.
+     inset + margin auto evita un transform, que chocaría con el sistema de
+     movimiento. */
+  .demo__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    /* Compensa el centro óptico del triángulo. */
+    padding-left: 0.15rem;
+  }
+
+  .demo__trigger:hover,
+  .demo__trigger:focus-visible {
+    border-color: var(--color-coral);
+  }
+
+  /* El disco es un <span> dentro del botón, así que el hover se escucha en
+     el botón y no en el propio disco. */
+  .demo__trigger:hover .demo__play,
+  .demo__trigger:focus-visible .demo__play {
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+
+  .demo video {
+    display: block;
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  }
+
+  .card__foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card::before {
+      transition: transform 260ms var(--ease);
+    }
+  }
+</style>

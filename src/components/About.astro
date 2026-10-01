@@ -1,6 +1,6 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 
 /* profile.about son los párrafos de esta sección. profile.summary se mantiene
    aparte porque alimenta la meta description del head, donde este texto sería
@@ -8,14 +8,33 @@ import SectionHeading from "./SectionHeading.astro";
 const paragraphs: string[] = content.profile.about;
 ---
 
-<section id="about" aria-labelledby="about-title" class="py-14">
-  <SectionHeading title="About" id="about" />
-
-  <div class="mt-6 flex flex-col gap-5">
-    {
-      paragraphs.map((text) => (
-        <p class="text-base leading-relaxed text-ink/70">{text}</p>
-      ))
-    }
+<Section id="about" title="About">
+  <div class="prose">
+    {paragraphs.map((text) => <p>{text}</p>)}
   </div>
-</section>
+</Section>
+
+<style>
+  /* El panel es ancho; el texto no. 66ch mantiene la línea por debajo del
+     límite de legibilidad aunque la columna dé para mucho más. */
+  .prose {
+    max-width: 66ch;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .prose p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  /* La entradilla lleva algo más de peso: es lo primero que se lee tras el
+     hero y marca el arranque de la lectura. */
+  .prose p:first-child {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--color-ink);
+  }
+</style>

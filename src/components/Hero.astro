@@ -1,85 +1,317 @@
 ---
 import content from "../data/content.json";
-import ContactIcon from "./ContactIcon.astro";
 import { contactLinks, mailHref } from "../lib/contactLinks";
 import { asset } from "../lib/asset";
 
 const { profile } = content;
+
+/* El nombre se parte en dos líneas apiladas. Sale de profile.name, no está
+   escrito a mano: si cambia el dato, cambia el bloque. */
+const [firstName, ...restOfName] = profile.name.split(" ");
+const lastName = restOfName.join(" ");
+
+/* El enlace secundario del hero reutiliza contactLinks para no duplicar la
+   URL de LinkedIn; si algún día no estuviera, sencillamente no se pinta. */
+const secondary = contactLinks.find((link) => link.external);
 ---
 
-<section class="grid items-center gap-12 py-12 md:grid-cols-2 md:gap-16 md:py-20">
-  {/* Columna izquierda */}
-  <div>
-    <h1 class="font-display text-4xl leading-tight tracking-tight sm:text-5xl">
-      <span class="font-normal">I&apos;m</span>{" "}
-      <span class="font-extrabold">{profile.name}</span>
+{/* El hero es lo único que rompe la rejilla raíl/panel: no tiene costura ni
+    título de sección. Es el elemento con el que se gasta toda la audacia. */}
+<header class="hero">
+  <div class="shell hero__grid">
+    {/* Reinterpretación de las formas de la opción A. Allí eran seis
+        rectángulos a filete repartidos por toda la página: decoración de
+        fondo que no sabía nada de la composición. Aquí quedan dos, y en vez
+        de ser formas cualesquiera son el CONTORNO DEL PROPIO RETRATO
+        desplazado — misma anchura, mismo alto, mismo radio, misma máscara.
+        Escalonadas hacia abajo y a la izquierda, son la estela del retrato:
+        dan profundidad (la foto tapa la parte que se solapa, y asoma la
+        esquina redondeada de cada una) y dirección, sin añadir ni una forma
+        nueva al vocabulario. */}
+    <span class="echo echo--far" aria-hidden="true"></span>
+    <span class="echo echo--near" aria-hidden="true"></span>
+
+    <p class="hero__greet wipe" style="--d:140ms;--t:320ms">I&apos;m</p>
+
+    <h1 class="hero__name">
+      <span class="wipe" style="--d:160ms;--t:620ms">{firstName}</span>{" "}
+      <span class="wipe" style="--d:200ms;--t:680ms">{lastName}</span>
     </h1>
 
-    <p class="mt-4 text-lg text-ink/70">{profile.role}</p>
-    <p class="mt-1 text-sm text-ink/60">{profile.location}</p>
+    {/* La regla que lidera el barrido. Cruza las dos columnas y pasa POR
+        DEBAJO de la foto: la foto la interrumpe, que es donde se nota que las
+        dos piezas están engranadas y no sólo puestas una al lado de la otra. */}
+    <span class="hero__rule rule-draw" style="--t:760ms" aria-hidden="true"></span>
 
-    {/* Mismo destino que el icono de correo: abre el gestor del usuario.
-        Centrado en móvil, alineado a la izquierda desde md. */}
-    <a
-      href={mailHref}
-      class="mx-auto mt-10 block w-fit rounded-full border-2 border-coral px-8 py-3 text-sm font-medium tracking-[0.12em] hover:bg-coral hover:text-paper md:mx-0"
-    >
-      CONTACT ME
-    </a>
-  </div>
+    {/* El retrato se queda dentro del shell: su canto derecho cae en la
+        misma vertical que las cifras, que el panel de cada sección y que el
+        pie. El tratamiento de color es un teñido —la foto en gris y una capa
+        de coral en `color`, que toma el tono pero conserva la luminosidad
+        original— en lugar del duotono a dos capas de antes, que se comía el
+        rango tonal de la fotografía. */}
+    <figure class="hero__shot wipe" style="--d:420ms;--t:460ms">
+      <img
+        src={asset("images/profile_lm.jpeg")}
+        alt={`Portrait of ${profile.name}`}
+        width="661"
+        height="675"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <span class="hero__duo" aria-hidden="true"></span>
+    </figure>
 
-  {/* Columna derecha: foto en B/N sobre el patrón de franjas.
-      w-[90%] encoge el bloque entero (foto + patrón) un 10%, para que la
-      composición se mantenga proporcional en vez de descuadrarse. */}
-  <div class="relative mx-auto w-[90%] max-w-sm md:max-w-none">
-    {/* Patrón: tres franjas verticales que sobresalen arriba y abajo.
-        Las exteriores usan `ink` (navy en claro, blanco en oscuro) para que
-        el patrón se invierta con el tema; la central es coral constante. */}
-    <div
-      aria-hidden="true"
-      class="absolute inset-x-8 -top-6 -bottom-6 flex sm:inset-x-12 sm:-top-8 sm:-bottom-8"
-    >
-      <div class="flex-1 bg-ink"></div>
-      <div class="flex-1 bg-coral"></div>
-      <div class="flex-1 bg-ink"></div>
+    <div class="hero__meta">
+      <p class="hero__role wipe" style="--d:520ms;--t:420ms">{profile.role}</p>
+      <p class="hero__loc wipe" style="--d:580ms;--t:320ms">{profile.location}</p>
     </div>
 
-    <img
-      src={asset("images/profile_lm.jpeg")}
-      alt={`Retrato de ${profile.name}`}
-      width="661"
-      height="675"
-      decoding="async"
-      class="relative w-full object-cover grayscale"
-    />
-  </div>
-</section>
+    <div class="hero__act wipe" style="--d:640ms;--t:420ms">
+      {/* Coral de fondo con texto navy: 5.3:1. En blanco sobre coral serían
+          3.1:1, por debajo de AA. El par coral+navy además no se mueve al
+          cambiar de tema. */}
+      <a href={mailHref} class="hero__cta">Email {firstName}</a>
 
-{/* Barra lateral fija. Ocupa 56px a la derecha (icono de 40 + pr-4) y el
-    contenido llega hasta vw/2 + 472 (max-w-5xl menos px-10), así que para
-    dejar 16px de aire entre ambos hace falta vw >= 1088. Con el lg (1024px)
-    de antes aparecía demasiado pronto: entre 1024 y 1055 se solapaban, y la
-    línea coral de cada encabezado entraba hasta 16px dentro de los iconos.
-    Por debajo de 1088 los mismos enlaces viven en la sección de contacto,
-    así que no se pierde nada. */}
-{
-  contactLinks.length > 0 && (
-    <aside class="fixed right-0 top-1/2 z-10 hidden -translate-y-1/2 min-[1088px]:block">
-      <ul class="flex flex-col gap-3 pr-4">
-        {contactLinks.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              aria-label={link.label}
-              class="grid h-10 w-10 place-items-center rounded-full border border-coral text-coral hover:bg-coral hover:text-paper"
-            >
-              <ContactIcon paths={link.paths} />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </aside>
-  )
-}
+      {secondary && (
+        <a
+          href={secondary.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hero__alt ul"
+        >
+          {secondary.label}
+        </a>
+      )}
+    </div>
+  </div>
+</header>
+
+<style>
+  /* `overflow: hidden` es la red de seguridad de la estela: los contornos
+     desplazados viven dentro del padding del hero, pero cualquier ajuste del
+     desplazamiento podría sacarlos y provocar scroll lateral. */
+  .hero {
+    position: relative;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .hero__grid {
+    position: relative;
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+
+  /* --- Estela del retrato ------------------------------------------------ */
+
+  /* Fuera de escritorio no hay estela: el retrato sangra de lado a lado y no
+     queda hueco donde un contorno desplazado signifique algo. */
+  .echo {
+    display: none;
+    pointer-events: none;
+  }
+
+  /* --- Tipografía -------------------------------------------------------- */
+
+  .hero__greet {
+    position: relative;
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+
+  /* El bloque de tipografía es una pieza de maquetación, no un titular puesto
+     encima de una. "Leonel" y "Mujica" tienen las mismas seis letras, así que
+     apilados y muy apretados forman un rectángulo casi exacto. */
+  .hero__name {
+    position: relative;
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 13vw, 9.75rem);
+    font-weight: 800;
+    line-height: 0.86;
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+  }
+
+  .hero__name span {
+    display: block;
+  }
+
+  .hero__rule {
+    position: relative;
+    display: block;
+    height: 2px;
+    margin-top: 2rem;
+    background: var(--color-coral);
+  }
+
+  /* --- Retrato ----------------------------------------------------------- */
+
+  /* `isolation` encierra la fusión dentro de la figura: sin ella el
+     multiply se comería también el fondo de la página. */
+  /* `isolation` encierra la fusión dentro de la figura: sin ella la capa de
+     teñido se saldría al fondo de la página. */
+  .hero__shot {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--color-shade);
+    border-radius: var(--radius-figure) 0 var(--radius-figure) 0;
+  }
+
+  .hero__shot img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    filter: grayscale(1) contrast(1.04);
+  }
+
+  /* `color` se queda con el tono y la saturación del coral y respeta la
+     luminosidad de la foto, así que tiñe sin aplanar: las luces siguen
+     siendo luces y las sombras, sombras. La opacidad gradúa cuánto. */
+  .hero__duo {
+    position: absolute;
+    inset: 0;
+    background: var(--color-coral);
+    mix-blend-mode: color;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* --- Texto de apoyo ---------------------------------------------------- */
+
+  .hero__meta {
+    position: relative;
+    margin-top: 1.75rem;
+  }
+
+  .hero__role {
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+    /* En una columna el cargo se parte en dos líneas; en escritorio cabe
+       entero y se suelta el tope (ver la regla del breakpoint). */
+    max-width: 22ch;
+  }
+
+  .hero__loc {
+    margin-top: 0.35rem;
+    font-size: 0.9375rem;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+
+  .hero__act {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+  }
+
+  /* Radio = "esto se pulsa". Lo estructural va a escuadra; sólo las acciones
+     y las fichas de stack llevan curva. */
+  .hero__cta {
+    display: inline-block;
+    border-radius: 9999px;
+    background: var(--color-coral);
+    color: var(--color-navy);
+    padding: 0.8rem 1.9rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .hero__alt {
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+  }
+
+  /* --- Escritorio -------------------------------------------------------- */
+
+  @media (min-width: 900px) {
+    .hero__grid {
+      display: grid;
+      /* Las filas van declaradas a propósito: con filas implícitas, la línea
+         -1 es la 1 y el `grid-row: 1 / -1` de la foto no abarcaba nada. */
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      grid-template-rows: auto auto auto auto auto;
+      column-gap: 3rem;
+      align-items: start;
+      padding-top: 2.5rem;
+      padding-bottom: 4rem;
+    }
+
+    /* La columna de texto mide 452px en el caso más estrecho (900px de
+       viewport) y el cargo ocupa unos 350px a 1.25rem, así que entra en una
+       sola línea sin necesidad de `nowrap` — que aquí sólo serviría para
+       recortarlo en silencio, porque el hero lleva overflow: hidden. */
+    .hero__role { max-width: none; }
+
+    .hero__greet { grid-column: 1; grid-row: 1; }
+    .hero__name  { grid-column: 1; grid-row: 2; }
+    .hero__rule  { grid-column: 1 / -1; grid-row: 3; }
+    .hero__meta  { grid-column: 1; grid-row: 4; }
+    .hero__act   { grid-column: 1; grid-row: 5; }
+
+    /* La foto abarca todas las filas y sube por encima del padding del hero,
+       pero no se sale por los lados: su canto derecho queda alineado con el
+       resto de la página.
+
+       Las estelas ocupan exactamente la misma celda con los mismos márgenes
+       —de ahí que compartan declaración— y sólo se diferencian en el
+       desplazamiento. Si cambia la geometría de la foto, cambia la de las
+       dos a la vez. */
+    .hero__shot,
+    .echo {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      align-self: stretch;
+      margin-top: -2.5rem;
+      border-radius: var(--radius-figure) 0 var(--radius-figure) 0;
+    }
+
+    .echo {
+      display: block;
+      border: 1px solid transparent;
+    }
+
+    .echo--near {
+      translate: -1.5rem 1.15rem;
+      border-color: color-mix(in srgb, var(--color-ink) 14%, transparent);
+    }
+
+    .echo--far {
+      translate: -3rem 2.3rem;
+      border-color: color-mix(in srgb, var(--color-coral) 28%, transparent);
+    }
+  }
+
+  /* --- Móvil y tableta --------------------------------------------------- */
+
+  @media (max-width: 899px) {
+    /* El retrato cambia de encuadre en lugar de encogerse, pero se queda
+       dentro del mismo margen que todo lo demás. */
+    .hero__shot {
+      margin-top: 2.5rem;
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  /* Tableta: a una columna pero con 768px de ancho un recorte 4/3 mide 576px
+     de alto y empuja el rol y la botonera fuera de pantalla. El retrato pasa
+     a banda apaisada —otro encuadre, no el mismo encogido— y baja el centro
+     para que la cara siga dentro. */
+  @media (min-width: 600px) and (max-width: 899px) {
+    .hero__shot {
+      aspect-ratio: 16 / 9;
+    }
+
+    .hero__shot img {
+      object-position: center 20%;
+    }
+  }
+</style>

@@ -1,36 +1,50 @@
 ---
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 import ContactIcon from "./ContactIcon.astro";
 import { contactLinks } from "../lib/contactLinks";
 ---
 
-{/* Destino de #contact: el enlace del nav. Mismos canales y mismos iconos
-    que la barra lateral — ambos leen de contactLinks, así que no pueden
-    desincronizarse. Se muestra el rótulo del canal, no la dirección. */}
-<footer id="contact" aria-labelledby="contact-title" class="py-14">
-  <SectionHeading title="Contact" id="contact" />
-
-  <ul class="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+{/* Destino de #contact: el enlace del nav. Lee de contactLinks, igual que el
+    hero, así que los dos no pueden desincronizarse. Se muestra el rótulo del
+    canal, no la dirección. */}
+<Section id="contact" title="Contact" as="footer">
+  <ul class="channels">
     {
       contactLinks.map((link) => (
         <li>
+          {/* Sólo iconos. Al desaparecer el rótulo visible, el nombre del
+              canal pasa a aria-label: sin él el enlace se anunciaría como
+              "enlace" a secas. */}
           <a
+            class="icon-btn"
             href={link.href}
             target={link.external ? "_blank" : undefined}
             rel={link.external ? "noopener noreferrer" : undefined}
-            class="group flex items-center gap-3 hover:text-coral"
+            aria-label={link.label}
           >
-            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-coral text-coral group-hover:bg-coral group-hover:text-paper">
-              <ContactIcon paths={link.paths} />
-            </span>
-            <span class="border-b-2 border-coral pb-0.5">{link.label}</span>
+            <ContactIcon paths={link.paths} />
           </a>
         </li>
       ))
     }
   </ul>
 
-  <p class="mt-16 text-center text-sm text-ink/60">
-    Leonel Mujica - leodvlpr - All rights reserved © - 2026
-  </p>
-</footer>
+  <p class="rights">Leonel Mujica - leodvlpr - All rights reserved © - 2026</p>
+</Section>
+
+<style>
+  .channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* El disco en sí lo da `.icon-btn` en global.css, compartido con el nav,
+     el play y el enlace al repositorio. Aquí sólo va la separación. */
+
+  .rights {
+    margin-top: 5rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+</style>

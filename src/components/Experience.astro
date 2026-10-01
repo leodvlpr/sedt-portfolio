@@ -1,6 +1,6 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 
 type Job = {
   company: string;
@@ -13,36 +13,31 @@ const experience: Job[] = content.experience;
 
 /* Nota: Softvision apunta a cognizant.com (empresa adquirente) — intencional. */
 
-/* logo.clearbit.com dejó de resolver (Clearbit fue absorbida por HubSpot y la Logo
-   API se discontinuó). Usamos el servicio de iconos de DuckDuckGo, que devuelve
-   marcas reales de 32-48px para estos dominios. Si algún día también cae, el
-   onerror deja a la vista el monograma que hay debajo. */
+/* logo.clearbit.com dejó de resolver (Clearbit fue absorbida por HubSpot y la
+   Logo API se discontinuó). Usamos el servicio de iconos de DuckDuckGo, que
+   devuelve marcas reales de 32-48px para estos dominios. Si algún día también
+   cae, el onerror deja a la vista el monograma que hay debajo. */
 const logoUrl = (domain: string) =>
   `https://icons.duckduckgo.com/ip3/${domain}.ico`;
-
-const rowClass =
-  "flex items-center gap-4 rounded-sm border border-ink/15 px-4 py-4";
 ---
 
-<section id="experience" aria-labelledby="experience-title" class="py-14">
-  <SectionHeading title="Experience" id="experience" />
-
-  <ul class="mt-6 flex flex-col gap-3">
+<Section id="experience" title="Experience">
+  <ul class="jobs">
     {
       experience.map((job) => {
         const hasDomain = Boolean(job.domain);
 
         const body = (
           <>
-            <span
-              aria-hidden="true"
-              class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xs border border-ink/15"
-            >
-              <span class="text-xs font-medium text-ink/50">
-                {job.company.charAt(0)}
-              </span>
+            {/* En reposo se ve el monograma y la tabla queda limpia; al pasar
+                por encima (o al enfocar con teclado) entra el favicon real de
+                la empresa. Es el único hover que no es la regla coral, y el
+                que de verdad cambia algo. */}
+            <span class="job__mark" aria-hidden="true">
+              <span class="job__mono">{job.company.charAt(0)}</span>
               {hasDomain && (
                 <img
+                  class="job__logo"
                   src={logoUrl(job.domain!)}
                   alt=""
                   width="32"
@@ -50,22 +45,14 @@ const rowClass =
                   loading="lazy"
                   decoding="async"
                   onerror="this.remove()"
-                  class="absolute inset-0 h-full w-full bg-paper object-contain"
                 />
               )}
             </span>
 
-            <span class="min-w-0 flex-1">
-              <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="font-medium">{job.company}</span>
-                {job.current && (
-                  <span class="rounded-xs border border-coral px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-coral">
-                    Actual
-                  </span>
-                )}
-              </span>
-              <span class="mt-0.5 block text-sm text-ink/60">{job.role}</span>
-            </span>
+            <span class="job__company">{job.company}</span>
+            <span class="job__role">{job.role}</span>
+
+            {job.current && <span class="job__now">Current</span>}
           </>
         );
 
@@ -73,19 +60,156 @@ const rowClass =
           <li>
             {hasDomain ? (
               <a
+                class="job"
                 href={`https://${job.domain}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                class={`${rowClass} hover:border-coral`}
               >
                 {body}
               </a>
             ) : (
-              <div class={rowClass}>{body}</div>
+              <div class="job">{body}</div>
             )}
           </li>
         );
       })
     }
   </ul>
-</section>
+</Section>
+
+<style>
+  .jobs {
+    border-top: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  }
+
+  /* Tabla, no rejilla de tarjetas: filas finas sobre filetes de 1px. */
+  .job {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1rem;
+    row-gap: 0.15rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    color: var(--color-ink);
+  }
+
+  /* La regla coral del hover, aquí sobre el filete inferior de la fila. */
+  .job::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--color-coral);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  a.job:hover::after,
+  a.job:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .job__mark {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    border-radius: var(--radius-xs);
+  }
+
+  .job__mono {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+
+  .job__logo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Los favicon vienen pensados para fondo blanco, así que el respaldo es
+       `paper` (blanco constante), no `surface`. */
+    background: var(--color-paper);
+  }
+
+  .job__company {
+    grid-column: 2;
+    font-weight: 600;
+  }
+
+  .job__role {
+    grid-column: 2;
+    font-size: 0.9375rem;
+    color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+  }
+
+  /* Relleno coral en vez de contorno: el puesto actual es el único dato
+     destacado de la tabla y así se lee como estado activo de un vistazo.
+     Glifo navy sobre coral, 5.3:1, y el par no se mueve con el tema.
+     Sentence case a propósito: la versalita en mayúsculas con tracking era
+     el tic de etiqueta genérica que el brief pide evitar. */
+  .job__now {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.2rem;
+    border-radius: 9999px;
+    background: var(--color-coral);
+    padding: 0.15rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+
+  @media (min-width: 640px) {
+    .job {
+      grid-template-columns: 2rem minmax(0, 14rem) minmax(0, 1fr) auto;
+      row-gap: 0;
+      column-gap: 1.25rem;
+    }
+
+    .job__role {
+      grid-column: 3;
+      font-size: 1rem;
+    }
+
+    .job__now {
+      grid-column: 4;
+      margin-top: 0;
+    }
+  }
+
+  /* Donde no hay puntero no hay hover, así que el logo se queda a la vista
+     desde el principio: en táctil no se pierde nada. */
+  @media (hover: hover) {
+    .job__logo {
+      opacity: 0;
+    }
+
+    a.job:hover .job__logo,
+    a.job:focus-visible .job__logo {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .job__logo {
+      transition: opacity 180ms var(--ease);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .job::after {
+      transition: transform 240ms var(--ease);
+    }
+  }
+</style>

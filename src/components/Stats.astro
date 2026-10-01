@@ -1,0 +1,139 @@
+---
+import content from "../data/content.json";
+
+/* Las cuatro cifras se cuentan o se extraen de content.json; ninguna se
+   escribe a mano y ninguna se arrastra de la opción A si no sale del dato:
+
+     10+        profile.summary ("10+ años de experiencia corporativa en QA")
+     14         total de herramientas en technologies
+     5 / 4      entradas de experience y empresas distintas entre ellas
+     2024–2026  del texto de recognition — ese array sigue en content.json
+                aunque la sección Recognition se retirase: esta cifra es su
+                único consumidor, así que no se puede borrar el dato
+
+   Si alguno de los dos que dependen de una expresión regular dejara de
+   encontrarse, la celda desaparece en vez de enseñar un hueco. */
+const { profile } = content;
+
+const years = profile.summary.match(/\d+\+?/)?.[0];
+const toolCount = Object.values(content.technologies).flat().length;
+const roleCount = content.experience.length;
+const companyCount = new Set(content.experience.map((job) => job.company)).size;
+const ambassadorYears = content.recognition
+  .find((item) => /ambassador/i.test(item))
+  ?.match(/\d{4}[–-]\d{4}/)?.[0];
+
+type Stat = { value: string; label: string };
+
+const stats: Stat[] = [
+  years && { value: years, label: "years in QA" },
+  { value: String(toolCount), label: "tools & frameworks" },
+  { value: String(roleCount), label: `roles across ${companyCount} companies` },
+  ambassadorYears && { value: ambassadorYears, label: "Cypress Ambassador" },
+].filter((stat): stat is Stat => Boolean(stat));
+
+/* El frente de la animación del hero sigue hacia la derecha por esta franja:
+   cada celda arranca algo después que la anterior, encadenando con la última
+   pieza del hero (la botonera, que termina sobre los 1060ms). Es el mismo
+   gesto continuando, no un segundo reveal independiente. */
+const enterDelay = (i: number) => 620 + i * 60;
+---
+
+{/* Estructura de la opción A: filetes arriba y abajo sobre el propio fondo de
+    la página y columnas separadas por una línea de 1px — nada de franja
+    oscura ni de cuatro cajas con borde. De la opción B se conserva una sola
+    cosa: el coral en las cifras. */}
+<div class="stats">
+  <div class="shell">
+    <dl class="stats__grid">
+      {
+        stats.map((stat, i) => (
+          <div class="stat wipe" style={`--d:${enterDelay(i)}ms;--t:400ms`}>
+            {/* dt es la etiqueta y dd el valor — el orden visual lo invierte
+                `column-reverse`, así el lector de pantalla oye "years in QA:
+                10+" en lugar de la pareja al revés. */}
+            <dt class="stat__label">{stat.label}</dt>
+            <dd class="stat__value">{stat.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</div>
+
+<style>
+  /* Aire entre la franja y el arranque de About: el padding de la sección
+     siguiente por sí solo dejaba las cifras pegadas al primer encabezado. */
+  .stats {
+    padding-bottom: 3rem;
+  }
+
+  .stats__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+    padding-block: 1.75rem;
+    border-block: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+  }
+
+  .stat {
+    /* El valor se ve encima de la etiqueta sin invertir la semántica. */
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  /* Lo único que viene de la opción B. Nota de contraste: el coral mide
+     2.7:1 sobre bone, por debajo del 3:1 que pediría un texto grande, así
+     que la cifra va acompañada siempre de su etiqueta en tinta — el coral
+     subraya, no es el único que informa. Sobre navy (modo oscuro) son
+     5.3:1 y cumple de sobra. */
+  .stat__value {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.625rem, 3vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-coral);
+  }
+
+  .stat__label {
+    margin-top: 0.45rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: color-mix(in srgb, var(--color-ink) 65%, transparent);
+  }
+
+  /* "2024–2026" va en nowrap y es la cifra más ancha con diferencia: por
+     debajo de 360px no cabe en media columna y se salía del viewport. */
+  @media (max-width: 359px) {
+    .stats__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 760px) {
+    .stats__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      padding-block: 2rem;
+    }
+
+    .stat {
+      padding-inline: 1.75rem;
+      border-left: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    }
+
+    .stat:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .stat:last-child {
+      padding-right: 0;
+    }
+  }
+</style>

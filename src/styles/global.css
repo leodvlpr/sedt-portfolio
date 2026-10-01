@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Dark mode is driven by a `.dark` class on <html>, set from localStorage in
-   Layout.astro — not by prefers-color-scheme alone. */
+/* El modo oscuro lo manda una clase `.dark` en <html>, puesta desde
+   localStorage en Layout.astro — no `prefers-color-scheme` a secas. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -11,30 +11,189 @@
   /* Paleta literal */
   --color-navy: #1b1a3b;
   --color-coral: #e2705c;
+  --color-bone: #f1efe8;
   --color-paper: #ffffff;
 
   /* Tokens semánticos: se invierten en oscuro. Los componentes usan éstos,
-     nunca los literales, salvo el coral (que es constante por diseño). */
+     nunca los literales, salvo el coral y el navy sobre coral (constantes). */
   --color-ink: #1b1a3b;
-  --color-surface: #ffffff;
+  --color-surface: #f1efe8;
+  --color-shade: #e8e5dc;
 
   --radius-xs: 6px;
   --radius-sm: 8px;
+  /* La foto del hero es la única "figura" de la página y tiene su propio
+     radio: ni esquina viva (estructura) ni píldora (acción). */
+  --radius-figure: 2rem;
 }
 
-/* "Invierte fondo/texto manteniendo el mismo coral como acento": basta con
-   cruzar los dos tokens semánticos. Ningún componente necesita variantes
-   `dark:` para color de texto o fondo.
+/* Los dos temas son inversos exactos: cruzando ink/surface basta, ningún
+   componente necesita variantes `dark:` de color o fondo. `shade` es la única
+   variante tonal: un peldaño por debajo de surface en claro y uno por encima
+   en oscuro, para la banda de Technologies.
    Va fuera de @layer a propósito, para ganarle al :root que emite @theme. */
 .dark {
-  --color-ink: #ffffff;
+  --color-ink: #f1efe8;
   --color-surface: #1b1a3b;
+  --color-shade: #232246;
+}
+
+:root {
+  /* Medidas del armazón. El raíl es la columna estrecha de la izquierda; el
+     `seam` es la línea de 1px contra la que se alinean los títulos. */
+  --gutter: 1.5rem;
+  --shell: 72rem;
+  --rail: 11rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  :root {
+    --rail: 12.5rem;
+  }
 }
 
 html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Desplazamiento suave al pulsar un enlace del nav. Dentro de la consulta de
+   movimiento reducido como todo lo demás: con `reduce` el salto es
+   instantáneo. Ojo, cualquier utilidad `scroll-auto` en <html> le ganaría. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   text-rendering: optimizeLegibility;
+}
+
+/* El coral mide 2.7:1 sobre bone, por debajo del 3:1 que pide un indicador de
+   foco. El anillo va en `ink` (14.5:1) y se invierte solo con el tema. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* Contenedor único: lo comparten el nav, el hero y cada sección. Las secciones
+   con fondo propio se extienden a todo el ancho y meten el shell dentro. */
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------------------------------------------------------------------------
+   Movimiento
+
+   Un único gesto de carga (el frente que barre el hero) y un único gesto de
+   hover (la regla coral que se dibuja). Todo lo que anima parte del estado
+   FINAL como valor por defecto en CSS: la animación sólo recorta hacia atrás
+   con `backwards`. Así, sin JS, sin soporte de animaciones o con
+   `prefers-reduced-motion`, la página aterriza ya resuelta.
+--------------------------------------------------------------------------- */
+
+@keyframes wipe-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+@keyframes rule-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Regla que se dibuja bajo un enlace. Es el único hover de todo el sitio, y
+   sólo lo llevan elementos que de verdad son interactivos. */
+.ul {
+  position: relative;
+}
+
+.ul::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.25rem;
+  height: 2px;
+  background: var(--color-coral);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.ul:hover::after,
+.ul:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* La sección en pantalla lleva la regla ya dibujada. Va después de la regla
+   de hover para ganarle en orden de cascada a igual especificidad, y es el
+   mismo gesto que el hover en vez de un indicador nuevo: en el nav sólo
+   puede haber una regla trazada a la vez, y es la sección donde estás.
+   El rótulo NO cambia de color ni de peso a propósito — atenuar los
+   inactivos los dejaría por debajo de 4.5:1 sobre bone, y cambiar el peso
+   movería los enlaces de sitio al hacer scroll. */
+.ul[aria-current]::after {
+  transform: scaleX(1);
+}
+
+/* Tratamiento único para TODOS los controles de icono: el conmutador de tema
+   del nav, el botón de play, el enlace al repositorio y los canales de
+   contacto. Estaba replicado en cuatro componentes y había derivado en cuatro
+   tamaños (2.5 / 2.75 / 3 / 3.5rem) y tres estilos distintos (contorno coral,
+   contorno tinta, relleno coral). Vive aquí para que no se vuelva a separar.
+
+   Disco coral con glifo navy: 5.3:1, y es el único par que no se mueve al
+   cambiar de tema. En hover pasa a tinta, que es el otro color que contrasta
+   en los dos modos. 2.75rem = 44px, el mínimo de objetivo táctil. */
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--color-coral);
+  color: var(--color-navy);
+  cursor: pointer;
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  background: var(--color-ink);
+  color: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon-btn {
+    transition:
+      background-color 200ms var(--ease),
+      color 200ms var(--ease);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wipe {
+    animation: wipe-in var(--t, 500ms) var(--d, 0ms) var(--ease) backwards;
+  }
+
+  .rule-draw {
+    transform-origin: left center;
+    animation: rule-in var(--t, 640ms) var(--d, 0ms) var(--ease) backwards;
+  }
+
+  .ul::after {
+    transition: transform 240ms var(--ease);
+  }
 }

@@ -1,6 +1,6 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 
 /* `grade` es opcional a propósito: si una entrada futura no lo trae, se
    omite esa línea y la ficha sigue mostrando institución y periodo. */
@@ -9,25 +9,51 @@ type School = { institution: string; period: string; grade?: string };
 const education: School[] = content.education;
 ---
 
-<section id="education" aria-labelledby="education-title" class="py-14">
-  <SectionHeading title="Education" id="education" />
-
-  <ul class="mt-6 flex flex-col gap-6">
+<Section id="education" title="Education">
+  <ul class="schools">
     {
       education.map((school) => (
         <li>
-          {school.grade && <p class="font-medium">{school.grade}</p>}
-
-          {/* Segunda línea: institución y periodo enfrentados, con el mismo
-              formato que ya tenía el periodo. */}
-          <div class="mt-1 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-            <span class="text-sm text-ink/70">{school.institution}</span>
-            <span class="text-sm tabular-nums text-ink/60">
-              {school.period}
-            </span>
+          <div>
+            {school.grade && <p class="schools__grade">{school.grade}</p>}
+            <p class="schools__where">{school.institution}</p>
           </div>
+          <span class="schools__when">{school.period}</span>
         </li>
       ))
     }
   </ul>
-</section>
+</Section>
+
+<style>
+  .schools {
+    border-top: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    max-width: 44rem;
+  }
+
+  .schools li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  }
+
+  .schools__grade {
+    font-weight: 600;
+  }
+
+  .schools__where {
+    margin-top: 0.15rem;
+    font-size: 0.9375rem;
+    color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+  }
+
+  .schools__when {
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--color-ink) 60%, transparent);
+  }
+</style>
