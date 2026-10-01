@@ -391,3 +391,12 @@ Language pass: all user-facing copy is English — `location`, `summary`, the
 `aria-label`s, `<html lang>` and `og:locale`. Source comments stay Spanish per
 repo convention; `Escuela Da Vinci` and `Centro Gráfico de Tecnología` stay as
 written because they are the institutions' real names.
+
+## Follow-up — Recognition section removed
+
+The Recognition section is gone from the page at the client's request. Its
+data stays in `content.json`: `Stats.astro` parses the Ambassador years out of
+the `recognition` array, and that is now the array's only consumer, so the
+page still surfaces "2024–2026 Cypress Ambassador" in the stats row. The
+other two entries ("Speaker at QA summits", "B2B talks on quality processes
+and ISO certification") are no longer shown anywhere.

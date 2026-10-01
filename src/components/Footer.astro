@@ -12,16 +12,17 @@ import { contactLinks } from "../lib/contactLinks";
     {
       contactLinks.map((link) => (
         <li>
+          {/* Sólo iconos. Al desaparecer el rótulo visible, el nombre del
+              canal pasa a aria-label: sin él el enlace se anunciaría como
+              "enlace" a secas. */}
           <a
-            class="channel"
+            class="icon-btn"
             href={link.href}
             target={link.external ? "_blank" : undefined}
             rel={link.external ? "noopener noreferrer" : undefined}
+            aria-label={link.label}
           >
-            <span class="channel__icon">
-              <ContactIcon paths={link.paths} />
-            </span>
-            <span class="channel__label ul">{link.label}</span>
+            <ContactIcon paths={link.paths} />
           </a>
         </li>
       ))
@@ -35,47 +36,11 @@ import { contactLinks } from "../lib/contactLinks";
   .channels {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.25rem 3rem;
-  }
-
-  .channel {
-    display: inline-flex;
-    align-items: center;
     gap: 1rem;
-    color: var(--color-ink);
-    font-size: 1.25rem;
   }
 
-  /* Tercer momento de color: la página cierra en coral igual que abre. El
-     círculo viene relleno de serie en lugar de perfilado — el acento pesa en
-     vez de insinuarse. Icono navy sobre coral: 5.3:1, y el par no se mueve
-     al cambiar de tema. */
-  .channel__icon {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    background: var(--color-coral);
-    color: var(--color-navy);
-  }
-
-  /* Como el reposo ya es coral, el hover tiene que ir a otro sitio: pasa a
-     tinta, que es el único color que sigue contrastando en los dos temas. */
-  .channel:hover .channel__icon,
-  .channel:focus-visible .channel__icon {
-    background: var(--color-ink);
-    color: var(--color-surface);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .channel__icon {
-      transition:
-        background-color 220ms var(--ease),
-        color 220ms var(--ease);
-    }
-  }
+  /* El disco en sí lo da `.icon-btn` en global.css, compartido con el nav,
+     el play y el enlace al repositorio. Aquí sólo va la separación. */
 
   .rights {
     margin-top: 5rem;

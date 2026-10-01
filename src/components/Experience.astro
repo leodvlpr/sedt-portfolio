@@ -122,6 +122,7 @@ const logoUrl = (domain: string) =>
     height: 2rem;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    border-radius: var(--radius-xs);
   }
 
   .job__mono {
@@ -152,18 +153,21 @@ const logoUrl = (domain: string) =>
     color: color-mix(in srgb, var(--color-ink) 60%, transparent);
   }
 
-  /* Sentence case a propósito: la versalita en mayúsculas con tracking era
+  /* Relleno coral en vez de contorno: el puesto actual es el único dato
+     destacado de la tabla y así se lee como estado activo de un vistazo.
+     Glifo navy sobre coral, 5.3:1, y el par no se mueve con el tema.
+     Sentence case a propósito: la versalita en mayúsculas con tracking era
      el tic de etiqueta genérica que el brief pide evitar. */
   .job__now {
     grid-column: 2;
     justify-self: start;
     margin-top: 0.2rem;
-    border: 1px solid var(--color-coral);
-    border-radius: var(--radius-xs);
-    padding: 0.1rem 0.45rem;
+    border-radius: 9999px;
+    background: var(--color-coral);
+    padding: 0.15rem 0.6rem;
     font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--color-ink);
+    font-weight: 600;
+    color: var(--color-navy);
   }
 
   @media (min-width: 640px) {

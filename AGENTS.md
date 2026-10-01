@@ -60,13 +60,13 @@ Motion was added in step-09b and is deliberately rationed to three gestures. Do 
 
 Every animation starts from the element's *final* state and only clips backwards (`animation-fill-mode: backwards`), and all of it sits inside `@media (prefers-reduced-motion: no-preference)`. So reduced-motion, no JS and no animation support all land on the finished page — verify that still holds before touching the motion layer. It is hand-written CSS on purpose: there are no `transition-*` or `animate-*` Tailwind utilities in `src/`, and adding them would scatter the system.
 
-Non-interactive elements (stack chips, the recognition list) get no hover state at all.
+Non-interactive elements (the stack chips, the Technologies tags) get no hover state at all.
 
 ## State of the code
 
-One route, [src/pages/index.astro](src/pages/index.astro), assembling the portfolio in the order Hero → Stats → About → Experience → Projects → TechGrid → Recognition → Education → Footer inside [src/layouts/Layout.astro](src/layouts/Layout.astro).
+One route, [src/pages/index.astro](src/pages/index.astro), assembling the portfolio in the order Hero → Stats → About → Experience → Projects → TechGrid → Education → Footer inside [src/layouts/Layout.astro](src/layouts/Layout.astro).
 
-[src/components/Stats.astro](src/components/Stats.astro) is Option A's layout (hairline rules on the page ground, 1px verticals between cells — no slab, no bordered boxes) carrying Option B's coral numerals. It counts all four figures out of `content.json` at build time — years from `profile.summary`, the tool total across `technologies`, `experience.length` plus its distinct companies, and the Ambassador years parsed from `recognition`. Nothing there is typed by hand, and the two regex-derived cells drop out rather than render blank if their pattern stops matching. Don't add a stat that isn't derivable.
+[src/components/Stats.astro](src/components/Stats.astro) is Option A's layout (hairline rules on the page ground, 1px verticals between cells — no slab, no bordered boxes) carrying Option B's coral numerals. It counts all four figures out of `content.json` at build time — years from `profile.summary`, the tool total across `technologies`, `experience.length` plus its distinct companies, and the Ambassador years parsed from `recognition`. **The Recognition section was removed but `content.json.recognition` must stay** — this stat is its only remaining consumer, so deleting the array silently drops a cell. Nothing there is typed by hand, and the two regex-derived cells drop out rather than render blank if their pattern stops matching. Don't add a stat that isn't derivable.
 
 The hero portrait is tinted, not recoloured: the `<img>` is grayscale and `.hero__duo` lays coral over it in `mix-blend-mode: color`, which takes the hue and keeps the photograph's own luminosity, at `opacity: .3`. `isolation: isolate` on the figure keeps that blend from leaking onto the page background — removing it breaks the hero. An earlier two-layer `multiply` + `lighten` duotone was rejected as too heavy; if you reach for more colour here, raise the opacity rather than rebuilding the stack.
 
@@ -81,11 +81,19 @@ Every section except Hero and Stats is wrapped in [src/components/Section.astro]
 
 Hero and Stats are the two things that break this grid — no rail, no seam — and together they are the hinge before the seam starts at About.
 
-Each section lives in a `<section id>` wired to `aria-labelledby="{id}-title"`, which `Section.astro` generates. Those ids are the nav's anchors: the three `navLinks` in the layout point at `#about`, `#projects` and `#contact`, and `#contact` is the Footer. Adding a section means passing `Section` an `id`, or the nav and the landmark labels drift apart.
+Each section lives in a `<section id>` wired to `aria-labelledby="{id}-title"`, which `Section.astro` generates. Those ids are the nav's anchors: `navLinks` in the layout has **one entry per section** — `#about`, `#experience`, `#projects`, `#technologies`, `#education` and `#contact` (the Footer) — in page order, labelled with the same words as each `<h2>`.
+
+`navLinks` is also the input to the active-section script at the bottom of the layout, so a new section has to be added in both places or it is missing from the nav *and* from the scroll indicator. Three things about that script:
+
+- The current section is marked with `aria-current="true"`, and `.ul[aria-current]` in `global.css` draws the coral rule. Labels deliberately do **not** dim or change weight when inactive: dimming would put them under 4.5:1 on bone, and a weight change would shift the links sideways as you scroll.
+- An `IntersectionObserver` band (`rootMargin: -25% 0px -65%`) picks the section, with the last one forced at the page bottom — Contact is too short to ever cross the band on its own.
+- Clicking a link **pins** it until a real gesture (`wheel` / `touchstart` / `keydown`). Education and Contact together are shorter than one viewport, so scrolling to Education *is* scrolling to the page bottom and no position-based rule can tell "clicked Education" from "scrolled to the end". The pin cannot be released on `scroll`, because smooth scrolling fires that itself.
+
+Smooth scrolling is `scroll-behavior: smooth` on `html`, inside the `prefers-reduced-motion: no-preference` query in `global.css`. Note that any `scroll-auto` utility on `<html>` silently beats it — that class used to be there and had to be removed.
 
 All user-facing copy is in **English** — page text, `content.json`, `alt` text, `aria-label`s, `<html lang>` and `og:locale`. Source comments stay in Spanish, which is this repo's convention. The only Spanish left on the page is two institution names in `education`, which are proper nouns and must not be translated. Note that `Stats.astro` pulls the years figure out of `profile.summary` with a regex, so that string has to keep a leading number.
 
-Every piece of copy comes from [src/data/content.json](src/data/content.json) — `profile` (including `profile.about`, the About paragraphs, kept separate from the shorter `profile.summary` that feeds the meta description), `experience`, `technologies`, `recognition`, `education` and `projects`. Components read it directly; don't hard-code content, and don't invent fields that aren't there.
+Every piece of copy comes from [src/data/content.json](src/data/content.json) — `profile` (including `profile.about`, the About paragraphs, kept separate from the shorter `profile.summary` that feeds the meta description), `experience`, `technologies`, `recognition` (no longer rendered as a section — read only by `Stats.astro`), `education` and `projects`. Components read it directly; don't hard-code content, and don't invent fields that aren't there.
 
 Two things in [src/components/Experience.astro](src/components/Experience.astro) look like bugs but are not:
 

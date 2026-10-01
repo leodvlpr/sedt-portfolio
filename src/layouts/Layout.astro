@@ -16,15 +16,23 @@ const {
   description = profile.summary,
 } = Astro.props;
 
+/* Una entrada por sección, en el mismo orden en que se montan en
+   index.astro, y con el mismo rótulo que su <h2>. Los `href` son también la
+   lista de secciones que observa el script del final: si se añade una
+   sección hay que añadirla aquí, o se queda fuera del nav Y del indicador de
+   sección activa. */
 const navLinks = [
-  { label: "About me", href: "#about" },
+  { label: "About", href: "#about" },
+  { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
+  { label: "Technologies", href: "#technologies" },
+  { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
 ];
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-auto">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -77,11 +85,12 @@ const navLinks = [
   </head>
 
   <body class="min-h-screen bg-surface font-sans text-ink antialiased">
-    {/* Envuelve en móvil: logo + toggle en la primera fila, enlaces en la
-        segunda. En una sola fila los 342px disponibles a 390px de ancho no
-        alcanzan y el toggle desbordaba el viewport. */}
+    {/* Envuelve por debajo de lg: logo + conmutador en la primera fila y los
+        enlaces en la segunda. Con seis secciones la fila única ya no entra
+        hasta 1024px — antes el corte estaba en sm, que con tres enlaces
+        bastaba. */}
     <nav
-      class="shell flex flex-wrap items-center gap-x-6 gap-y-4 py-8 sm:flex-nowrap"
+      class="shell flex flex-wrap items-center gap-x-6 gap-y-4 py-8 lg:flex-nowrap"
     >
       {/* `home` es la raíz del base; un "/" plano saldría del
           subdirectorio y llevaría a la raíz del dominio. */}
@@ -96,12 +105,12 @@ const navLinks = [
       </a>
 
       <ul
-        class="order-2 flex w-full items-center gap-6 text-sm sm:order-1 sm:ml-auto sm:w-auto sm:gap-8"
+        class="order-2 flex w-full flex-wrap items-center gap-x-5 gap-y-3 text-sm lg:order-1 lg:ml-auto lg:w-auto lg:gap-x-7"
       >
         {
           navLinks.map((link) => (
             <li>
-              <a href={link.href} class="ul">
+              <a href={link.href} class="ul" data-nav-link>
                 {link.label}
               </a>
             </li>
@@ -116,7 +125,7 @@ const navLinks = [
         type="button"
         id="theme-toggle"
         aria-label="Toggle light and dark mode"
-        class="order-1 ml-auto grid h-10 w-10 place-items-center rounded-full border border-coral text-coral hover:bg-coral hover:text-navy sm:order-2 sm:ml-0"
+        class="icon-btn order-1 ml-auto lg:order-2 lg:ml-0"
       >
         <ContactIcon paths={ICONS.moon} class="dark:hidden" />
         <ContactIcon paths={ICONS.sun} class="hidden dark:block" />
@@ -124,6 +133,123 @@ const navLinks = [
     </nav>
 
     <slot />
+
+    {/* Marca en el nav la sección que se está viendo. Sin JS no hay
+        indicador, pero los enlaces siguen funcionando: es realce, no
+        navegación. */}
+    <script>
+      const links = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]"),
+      );
+
+      /* El nav es la fuente de la lista de secciones; si un href apunta a un
+         id que no existe, esa entrada sencillamente se ignora. */
+      const targets = links
+        .map((link) => ({
+          link,
+          section: document.getElementById(
+            decodeURIComponent(link.hash.slice(1)),
+          ),
+        }))
+        .filter(
+          (entry): entry is { link: HTMLAnchorElement; section: HTMLElement } =>
+            entry.section !== null,
+        );
+
+      if (targets.length) {
+        const onScreen = new Set<Element>();
+        let active: HTMLAnchorElement | null = null;
+
+        /* Enlace fijado por un clic. Education y Contact juntas miden menos
+           que una ventana, así que llegar a Education ES llegar al final de
+           la página: por posición es imposible distinguir "he pulsado
+           Education" de "he bajado del todo". Cuando el usuario elige a
+           dónde ir, manda su elección hasta que vuelva a mover él la página. */
+        let pinned: HTMLAnchorElement | null = null;
+
+        const mark = (next: HTMLAnchorElement | null) => {
+          if (next === active) return;
+          active?.removeAttribute("aria-current");
+          next?.setAttribute("aria-current", "true");
+          active = next;
+        };
+
+        const atBottom = () =>
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 2;
+
+        const pick = () => {
+          if (pinned) return;
+          /* Al final de la página gana la última sección: Contact es corta y
+             nunca llega a cruzar la banda de detección, así que sin esto el
+             indicador se quedaría atascado en Technologies. */
+          if (atBottom()) {
+            mark(targets[targets.length - 1].link);
+            return;
+          }
+          const hit = targets.find((entry) => onScreen.has(entry.section));
+          /* Arriba del todo no hay ninguna activa: el hero no es una sección
+             del nav y marcar About allí sería mentir. */
+          mark(hit ? hit.link : null);
+        };
+
+        for (const { link } of targets) {
+          link.addEventListener("click", () => {
+            pinned = link;
+            mark(link);
+          });
+        }
+
+        /* Se suelta con un gesto real del usuario, no con el evento `scroll`:
+           el desplazamiento suave dispara `scroll` él solo y se desfijaría a
+           mitad de viaje. */
+        for (const gesture of ["wheel", "touchstart", "keydown"] as const) {
+          window.addEventListener(
+            gesture,
+            () => {
+              if (!pinned) return;
+              pinned = null;
+              pick();
+            },
+            { passive: true },
+          );
+        }
+
+        /* La banda de detección es una franja fina a un cuarto de la ventana:
+           la sección activa es la que la cruza, no la que más píxeles ocupa. */
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) onScreen.add(entry.target);
+              else onScreen.delete(entry.target);
+            }
+            pick();
+          },
+          { rootMargin: "-25% 0px -65% 0px", threshold: 0 },
+        );
+
+        for (const { section } of targets) observer.observe(section);
+
+        /* El observador no se entera de llegar al final de la página si no
+           cambia ninguna intersección, así que el scroll lo recomprueba.
+           Limitado a un fotograma y sin lecturas de layout salvo atBottom(). */
+        let queued = false;
+        window.addEventListener(
+          "scroll",
+          () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => {
+              queued = false;
+              pick();
+            });
+          },
+          { passive: true },
+        );
+
+        pick();
+      }
+    </script>
 
     <script is:inline>
       document

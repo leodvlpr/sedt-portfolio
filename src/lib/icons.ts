@@ -4,7 +4,7 @@
    Sin `as const`: con él cada entrada se infiere como tupla readonly y deja
    de ser asignable al `string[]` que esperan los props. */
 export const ICONS: Record<
-  "mail" | "linkedin" | "github" | "sun" | "moon",
+  "mail" | "linkedin" | "github" | "sun" | "moon" | "play",
   string[]
 > = {
   mail: [
@@ -28,4 +28,7 @@ export const ICONS: Record<
   moon: [
     "M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z",
   ],
+  /* Triángulo a trazo, no relleno: el resto del juego es outline y un
+     triángulo macizo cantaba como venido de otro set. */
+  play: ["M7 4v16l13 -8z"],
 };

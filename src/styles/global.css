@@ -63,6 +63,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Desplazamiento suave al pulsar un enlace del nav. Dentro de la consulta de
+   movimiento reducido como todo lo demás: con `reduce` el salto es
+   instantáneo. Ojo, cualquier utilidad `scroll-auto` en <html> le ganaría. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   text-rendering: optimizeLegibility;
 }
@@ -125,6 +134,53 @@ body {
 .ul:hover::after,
 .ul:focus-visible::after {
   transform: scaleX(1);
+}
+
+/* La sección en pantalla lleva la regla ya dibujada. Va después de la regla
+   de hover para ganarle en orden de cascada a igual especificidad, y es el
+   mismo gesto que el hover en vez de un indicador nuevo: en el nav sólo
+   puede haber una regla trazada a la vez, y es la sección donde estás.
+   El rótulo NO cambia de color ni de peso a propósito — atenuar los
+   inactivos los dejaría por debajo de 4.5:1 sobre bone, y cambiar el peso
+   movería los enlaces de sitio al hacer scroll. */
+.ul[aria-current]::after {
+  transform: scaleX(1);
+}
+
+/* Tratamiento único para TODOS los controles de icono: el conmutador de tema
+   del nav, el botón de play, el enlace al repositorio y los canales de
+   contacto. Estaba replicado en cuatro componentes y había derivado en cuatro
+   tamaños (2.5 / 2.75 / 3 / 3.5rem) y tres estilos distintos (contorno coral,
+   contorno tinta, relleno coral). Vive aquí para que no se vuelva a separar.
+
+   Disco coral con glifo navy: 5.3:1, y es el único par que no se mueve al
+   cambiar de tema. En hover pasa a tinta, que es el otro color que contrasta
+   en los dos modos. 2.75rem = 44px, el mínimo de objetivo táctil. */
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--color-coral);
+  color: var(--color-navy);
+  cursor: pointer;
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  background: var(--color-ink);
+  color: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon-btn {
+    transition:
+      background-color 200ms var(--ease),
+      color 200ms var(--ease);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

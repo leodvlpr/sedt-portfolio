@@ -1,6 +1,8 @@
 ---
 import content from "../data/content.json";
 import Section from "./Section.astro";
+import ContactIcon from "./ContactIcon.astro";
+import { ICONS } from "../lib/icons";
 import { asset } from "../lib/asset";
 
 /* `video` y `poster` son opcionales: un proyecto sin demo renderiza la ficha
@@ -46,6 +48,7 @@ const projects: Project[] = content.projects;
                   class="demo__trigger"
                   data-video-play
                   aria-controls={videoId}
+                  aria-label={`Play the ${project.name} demo`}
                 >
                   {project.poster && (
                     <img
@@ -57,7 +60,10 @@ const projects: Project[] = content.projects;
                       decoding="async"
                     />
                   )}
-                  <span class="demo__label">Watch the suite run</span>
+
+                  <span class="icon-btn demo__play" aria-hidden="true">
+                    <ContactIcon paths={ICONS.play} />
+                  </span>
                 </button>
 
                 <video
@@ -73,14 +79,20 @@ const projects: Project[] = content.projects;
               </div>
             )}
 
-            <a
-              class="card__link ul"
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on GitHub
-            </a>
+            {/* El rótulo pasa a icono en la esquina inferior derecha. Al no
+                quedar texto visible, el nombre accesible lo da aria-label y
+                nombra el proyecto, no un genérico "GitHub". */}
+            <div class="card__foot">
+              <a
+                class="icon-btn"
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${project.name} on GitHub`}
+              >
+                <ContactIcon paths={ICONS.github} />
+              </a>
+            </div>
           </li>
         );
       })
@@ -88,8 +100,10 @@ const projects: Project[] = content.projects;
   </ul>
 </Section>
 
-{/* Revelar, no reproducir: el vídeo aparece con sus controles y es el usuario
-    quien pulsa play. Nada se reproduce solo. */}
+{/* Nada se reproduce solo: el mp4 sigue con preload="none" y no se pide un
+    byte hasta que el usuario pulsa el botón de play. A partir de ahí, un solo
+    gesto — el clic revela el vídeo Y lo arranca, en vez de obligar a pulsar
+    play dos veces. */}
 <script>
   document.querySelectorAll<HTMLElement>("[data-video-card]").forEach((card) => {
     const trigger = card.querySelector<HTMLButtonElement>("[data-video-play]");
@@ -100,6 +114,11 @@ const projects: Project[] = content.projects;
       video.hidden = false;
       trigger.hidden = true;
       video.focus();
+      /* El clic es un gesto del usuario, así que la política de autoplay lo
+         permite; aun así play() devuelve una promesa que puede rechazarse
+         (códec no soportado, por ejemplo) y sin catch quedaría sin manejar.
+         Si falla, el vídeo ya está visible con sus propios controles. */
+      void video.play().catch(() => {});
     });
   });
 </script>
@@ -174,6 +193,7 @@ const projects: Project[] = content.projects;
   }
 
   .demo__trigger {
+    position: relative;
     display: block;
     width: 100%;
     overflow: hidden;
@@ -181,7 +201,6 @@ const projects: Project[] = content.projects;
     background: none;
     padding: 0;
     color: inherit;
-    text-align: left;
     cursor: pointer;
   }
 
@@ -190,12 +209,15 @@ const projects: Project[] = content.projects;
     width: 100%;
   }
 
-  .demo__label {
-    display: block;
-    border-top: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-    padding: 0.6rem 0.85rem;
-    font-size: 0.875rem;
-    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  /* El disco lo da `.icon-btn`; aquí sólo el centrado sobre la miniatura.
+     inset + margin auto evita un transform, que chocaría con el sistema de
+     movimiento. */
+  .demo__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    /* Compensa el centro óptico del triángulo. */
+    padding-left: 0.15rem;
   }
 
   .demo__trigger:hover,
@@ -203,9 +225,12 @@ const projects: Project[] = content.projects;
     border-color: var(--color-coral);
   }
 
-  .demo__trigger:hover .demo__label {
-    border-top-color: var(--color-coral);
-    color: var(--color-ink);
+  /* El disco es un <span> dentro del botón, así que el hover se escucha en
+     el botón y no en el propio disco. */
+  .demo__trigger:hover .demo__play,
+  .demo__trigger:focus-visible .demo__play {
+    background: var(--color-ink);
+    color: var(--color-surface);
   }
 
   .demo video {
@@ -214,12 +239,10 @@ const projects: Project[] = content.projects;
     border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
   }
 
-  .card__link {
-    display: inline-block;
+  .card__foot {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--color-ink);
   }
 
   @media (prefers-reduced-motion: no-preference) {

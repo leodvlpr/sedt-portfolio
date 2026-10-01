@@ -193,6 +193,8 @@ const secondary = contactLinks.find((link) => link.external);
     font-size: 1.25rem;
     line-height: 1.4;
     color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+    /* En una columna el cargo se parte en dos líneas; en escritorio cabe
+       entero y se suelta el tope (ver la regla del breakpoint). */
     max-width: 22ch;
   }
 
@@ -242,6 +244,12 @@ const secondary = contactLinks.find((link) => link.external);
       padding-top: 2.5rem;
       padding-bottom: 4rem;
     }
+
+    /* La columna de texto mide 452px en el caso más estrecho (900px de
+       viewport) y el cargo ocupa unos 350px a 1.25rem, así que entra en una
+       sola línea sin necesidad de `nowrap` — que aquí sólo serviría para
+       recortarlo en silencio, porque el hero lleva overflow: hidden. */
+    .hero__role { max-width: none; }
 
     .hero__greet { grid-column: 1; grid-row: 1; }
     .hero__name  { grid-column: 1; grid-row: 2; }

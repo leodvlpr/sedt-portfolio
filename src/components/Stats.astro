@@ -7,7 +7,9 @@ import content from "../data/content.json";
      10+        profile.summary ("10+ años de experiencia corporativa en QA")
      14         total de herramientas en technologies
      5 / 4      entradas de experience y empresas distintas entre ellas
-     2024–2026  del texto de recognition
+     2024–2026  del texto de recognition — ese array sigue en content.json
+                aunque la sección Recognition se retirase: esta cifra es su
+                único consumidor, así que no se puede borrar el dato
 
    Si alguno de los dos que dependen de una expresión regular dejara de
    encontrarse, la celda desaparece en vez de enseñar un hueco. */
@@ -60,6 +62,12 @@ const enterDelay = (i: number) => 620 + i * 60;
 </div>
 
 <style>
+  /* Aire entre la franja y el arranque de About: el padding de la sección
+     siguiente por sí solo dejaba las cifras pegadas al primer encabezado. */
+  .stats {
+    padding-bottom: 3rem;
+  }
+
   .stats__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
