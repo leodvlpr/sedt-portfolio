@@ -58,6 +58,7 @@ Motion was added in step-09b and is deliberately rationed to three gestures. Do 
 - **One load moment.** A single wipe front crosses the hero left-to-right (`wipe-in` + `rule-in` keyframes in `global.css`); each element's `--d`/`--t` is set from its x-position so it reads as one curtain, not a stagger. The stats band continues the same front at 620–800ms rather than running a reveal of its own. Nothing below that animates, and there is no scroll-triggered motion anywhere.
 - **One hover idiom.** A coral rule draws in — the `.ul` helper under links, and the same gesture on the bottom edge of an Experience row and the top edge of the project card.
 - **One hover special case.** Experience rows swap the monogram for the real company logo.
+- **The Projects carousel is the one sanctioned exception** to "nothing below the hero moves": step-10 asked for it explicitly. It auto-advances every 7s and slides with a 480ms `transform` transition, both only under `prefers-reduced-motion: no-preference` — with reduced motion there is no autoplay and no transition, only manual navigation. Don't use it as precedent for scroll reveals or other moving parts.
 
 Every animation starts from the element's *final* state and only clips backwards (`animation-fill-mode: backwards`), and all of it sits inside `@media (prefers-reduced-motion: no-preference)`. So reduced-motion, no JS and no animation support all land on the finished page — verify that still holds before touching the motion layer. It is hand-written CSS on purpose: there are no `transition-*` or `animate-*` Tailwind utilities in `src/`, and adding them would scatter the system.
 
@@ -98,7 +99,20 @@ Smooth scrolling is `scroll-behavior: smooth` on `html`, inside the `prefers-red
 
 All user-facing copy is in **English** — page text, `content.json`, `alt` text, `aria-label`s, `<html lang>` and `og:locale`. Source comments stay in Spanish, which is this repo's convention. The only Spanish left on the page is two institution names in `education`, which are proper nouns and must not be translated. Note that `Stats.astro` pulls the years figure out of `profile.summary` with a regex, so that string has to keep a leading number.
 
-Every piece of copy comes from [src/data/content.json](src/data/content.json) — `profile` (including `profile.about`, the About paragraphs, kept separate from the shorter `profile.summary` that feeds the meta description), `experience`, `technologies`, `recognition` (no longer rendered as a section — read only by `Stats.astro`), `education` and `projects`. Components read it directly; don't hard-code content, and don't invent fields that aren't there.
+Every piece of copy comes from [src/data/content.json](src/data/content.json) — `profile` (including `profile.about`, the About paragraphs, kept separate from the shorter `profile.summary` that feeds the meta description), `experience`, `technologies`, `recognition` (no longer rendered as a section — read only by `Stats.astro`), `education` and `projects` (each with a `status`, see the carousel notes). Components read it directly; don't hard-code content, and don't invent fields that aren't there.
+
+The Projects section is a carousel: [src/components/Projects.astro](src/components/Projects.astro) is only the `Section` wrapper, and [src/components/ProjectsCarousel.astro](src/components/ProjectsCarousel.astro) owns the cards, their states and the rotation (vanilla JS, no library). Each `projects` entry in `content.json` has a `status`:
+
+- `"live"` renders the full card — poster thumbnail with the play trigger (the mp4 stays `preload="none"` until clicked) and the GitHub `icon-btn` linking to `url`.
+- `"coming-soon"` keeps the same card shell with a muted "Coming soon" box in the video's place (same 1280/682 ratio, pushed to the card foot so it sits exactly where the live video sits) and the GitHub button present but inert: no `href`, `role="link"`, `aria-disabled="true"`, 40% opacity, no hover — unless the entry already has a `url`, in which case the button links normally (a repo can exist before its demo). These entries only have `name`, `description` ("TBD"), `stack` and `status` — don't invent descriptions or stacks for unbuilt projects, and when one ships, switch it to `"live"` and add `url` (plus `video`/`poster` if there is a demo).
+
+Carousel behaviour, all covered by the step-10 brief:
+
+- **Autoplay** every 7s, wrapping. Hover or focus inside pauses it (it resumes on leave); any deliberate action — arrows, dots, swipe, arrow keys, or playing the demo — **stops it for good**. While rotating, the track is `aria-live="off"`; once the user is in control it becomes `polite`.
+- **Controls** are real `<button>`s: prev/next reuse `.icon-btn`, and the dots are 24px targets whose current one stretches into a coral pill (the shape change carries the state, not the colour alone). Arrow keys work when focus is inside the carousel, except inside the `<video>`, where they seek.
+- Off-screen slides are `inert` and a playing video pauses when its slide leaves.
+- **Swipe** needs a mostly-horizontal 40px move, so vertical page scrolls don't change slide.
+- **Progressive:** like the nav, it keys off `.js` on `<html>`. Without JS the cards stack as a plain list and the controls are hidden.
 
 Two things in [src/components/Experience.astro](src/components/Experience.astro) look like bugs but are not:
 
