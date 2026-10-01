@@ -86,6 +86,8 @@ Hero and Stats are the two things that break this grid — no rail, no seam — 
 
 Each section lives in a `<section id>` wired to `aria-labelledby="{id}-title"`, which `Section.astro` generates. Those ids are the nav's anchors: `navLinks` in the layout has **one entry per section** — `#about`, `#experience`, `#projects`, `#technologies`, `#education` and `#contact` (the Footer) — in page order, labelled with the same words as each `<h2>`.
 
+Below `lg` (1024px) the nav is a three-column grid — burger left, logo truly centred (the side columns are both `1fr`), theme toggle right — and the section list opens under it in normal flow, one per row on hairlines, with no animation. The burger reuses `.icon-btn`. Picking a section or pressing Escape closes it; it closes *before* the anchor jump so the target is measured without the open list pushing the page. It is progressive: the head script adds `.js` to `<html>`, and only then is the list collapsed — without JS the burger is hidden and the links stay visible. The three header items are pinned to `grid-row: 1` because auto-placement would otherwise drop the toggle below the list. Layout lives in `.site-nav` in `global.css`.
+
 `navLinks` is also the input to the active-section script at the bottom of the layout, so a new section has to be added in both places or it is missing from the nav *and* from the scroll indicator. Three things about that script:
 
 - The current section is marked with `aria-current="true"`, and `.ul[aria-current]` in `global.css` draws the coral rule. Labels deliberately do **not** dim or change weight when inactive: dimming would put them under 4.5:1 on bone, and a weight change would shift the links sideways as you scroll.
