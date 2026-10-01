@@ -70,6 +70,9 @@ const navLinks = [
     {/* Applied before first paint so the theme never flashes. */}
     <script is:inline>
       (() => {
+        /* Marca que hay JS: sólo entonces el menú móvil se pliega tras la
+           hamburguesa. Sin JS los enlaces quedan a la vista. */
+        document.documentElement.classList.add("js");
         try {
           const stored = localStorage.getItem("theme");
           const dark =
@@ -85,18 +88,28 @@ const navLinks = [
   </head>
 
   <body class="min-h-screen bg-surface font-sans text-ink antialiased">
-    {/* Envuelve por debajo de lg: logo + conmutador en la primera fila y los
-        enlaces en la segunda. Con seis secciones la fila única ya no entra
-        hasta 1024px — antes el corte estaba en sm, que con tres enlaces
-        bastaba. */}
-    <nav
-      class="shell flex flex-wrap items-center gap-x-6 gap-y-4 py-8 lg:flex-nowrap"
-    >
+    {/* Por debajo de lg (con seis secciones la fila única no entra hasta
+        1024px): hamburguesa a la izquierda, logo centrado y conmutador de
+        tema a la derecha; las secciones se despliegan debajo. La maqueta
+        vive en `.site-nav` de global.css. */}
+    <nav class="shell site-nav py-8" data-nav>
+      <button
+        type="button"
+        class="icon-btn nav-burger"
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        data-nav-toggle
+      >
+        <ContactIcon paths={ICONS.menu} class="nav-burger__open" />
+        <ContactIcon paths={ICONS.x} class="nav-burger__close" />
+      </button>
+
       {/* `home` es la raíz del base; un "/" plano saldría del
           subdirectorio y llevaría a la raíz del dominio. */}
       <a
         href={home}
-        class="font-display text-xl font-extrabold tracking-tight"
+        class="nav-logo font-display text-xl font-extrabold tracking-tight"
         aria-label="leodvlpr — home"
       >
         <span class="text-ink">leo</span><span class="text-coral"
@@ -104,9 +117,7 @@ const navLinks = [
         ><span class="text-coral" aria-hidden="true">.</span>
       </a>
 
-      <ul
-        class="order-2 flex w-full flex-wrap items-center gap-x-5 gap-y-3 text-sm lg:order-1 lg:ml-auto lg:w-auto lg:gap-x-7"
-      >
+      <ul id="nav-menu" class="nav-menu">
         {
           navLinks.map((link) => (
             <li>
@@ -125,7 +136,7 @@ const navLinks = [
         type="button"
         id="theme-toggle"
         aria-label="Toggle light and dark mode"
-        class="icon-btn order-1 ml-auto lg:order-2 lg:ml-0"
+        class="icon-btn nav-theme"
       >
         <ContactIcon paths={ICONS.moon} class="dark:hidden" />
         <ContactIcon paths={ICONS.sun} class="hidden dark:block" />
@@ -133,6 +144,37 @@ const navLinks = [
     </nav>
 
     <slot />
+
+    {/* Menú móvil: abre y cierra la lista de secciones. Elegir una sección o
+        pulsar Escape lo cierra; en escritorio el botón no se ve y la lista
+        está siempre a la vista, así que el estado no importa. */}
+    <script>
+      const nav = document.querySelector<HTMLElement>("[data-nav]");
+      const burger = nav?.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+
+      if (nav && burger) {
+        const setOpen = (open: boolean) => {
+          nav.toggleAttribute("data-open", open);
+          burger.setAttribute("aria-expanded", String(open));
+        };
+
+        burger.addEventListener("click", () =>
+          setOpen(!nav.hasAttribute("data-open")),
+        );
+
+        /* Se cierra antes de que el navegador salte al ancla, así el destino
+           se calcula ya sin el menú desplegado empujando la página. */
+        for (const link of nav.querySelectorAll("[data-nav-link]")) {
+          link.addEventListener("click", () => setOpen(false));
+        }
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape" || !nav.hasAttribute("data-open")) return;
+          setOpen(false);
+          burger.focus();
+        });
+      }
+    </script>
 
     {/* Marca en el nav la sección que se está viendo. Sin JS no hay
         indicador, pero los enlaces siguen funcionando: es realce, no

@@ -13,12 +13,14 @@
   --color-coral: #e2705c;
   --color-bone: #f1efe8;
   --color-paper: #ffffff;
+  /* Fondo del retrato del hero: el `shade` claro, fijo en los dos temas. */
+  --color-stone: #e8e5dc;
 
   /* Tokens semánticos: se invierten en oscuro. Los componentes usan éstos,
      nunca los literales, salvo el coral y el navy sobre coral (constantes). */
   --color-ink: #1b1a3b;
   --color-surface: #f1efe8;
-  --color-shade: #e8e5dc;
+  --color-shade: var(--color-stone);
 
   --radius-xs: 6px;
   --radius-sm: 8px;
@@ -173,6 +175,123 @@ body {
 .icon-btn:focus-visible {
   background: var(--color-ink);
   color: var(--color-surface);
+}
+
+/* --- Nav ------------------------------------------------------------------
+
+   Móvil y tableta: rejilla de tres columnas con la hamburguesa a la
+   izquierda, el logo centrado y el conmutador de tema a la derecha. Las dos
+   columnas laterales son 1fr para que el logo quede centrado de verdad, no
+   sólo entre los dos botones. La lista ocupa una fila propia debajo.
+
+   Sin JS no hay hamburguesa y la lista queda abierta: el menú es realce, la
+   navegación no depende de él. Con JS (`.js`, puesta en el <head>) la lista
+   se pliega y la abre `[data-open]`. Se despliega en el flujo, sin animación
+   — el movimiento del sitio está racionado a propósito. */
+.site-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1rem;
+}
+
+/* Las tres piezas de cabecera van fijadas a la fila 1: si no, la colocación
+   automática pondría el conmutador detrás de la lista, debajo del menú. */
+.nav-burger {
+  display: none;
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: start;
+}
+
+.js .nav-burger {
+  display: grid;
+}
+
+.nav-burger[aria-expanded="true"] .nav-burger__open,
+.nav-burger[aria-expanded="false"] .nav-burger__close {
+  display: none;
+}
+
+.nav-logo {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.nav-theme {
+  grid-row: 1;
+  grid-column: 3;
+  justify-self: end;
+}
+
+.nav-menu {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.js .nav-menu {
+  display: none;
+}
+
+/* Abierto: una sección por fila, separadas por filetes de 1px. */
+.js .site-nav[data-open] .nav-menu {
+  display: block;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  font-size: 1rem;
+}
+
+.js .site-nav[data-open] .nav-menu li {
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+}
+
+.js .site-nav[data-open] .nav-menu a {
+  display: inline-block;
+  padding-block: 0.9rem;
+}
+
+/* El relleno agranda el objetivo táctil; la regla de `.ul` se sube para
+   seguir pegada al texto y no al borde del relleno. */
+.js .site-nav[data-open] .nav-menu .ul::after {
+  bottom: 0.65rem;
+}
+
+/* Desde lg todo cabe en una fila: logo, secciones empujadas a la derecha y
+   conmutador. La hamburguesa desaparece y la lista se ve siempre, esté como
+   esté el estado del menú. */
+@media (min-width: 64rem) {
+  .site-nav {
+    display: flex;
+    gap: 1.75rem;
+  }
+
+  .js .nav-burger {
+    display: none;
+  }
+
+  .nav-menu,
+  .js .nav-menu,
+  .js .site-nav[data-open] .nav-menu {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1.75rem;
+    margin-top: 0;
+    margin-left: auto;
+    border: 0;
+    font-size: 0.875rem;
+  }
+
+  .js .site-nav[data-open] .nav-menu li {
+    border: 0;
+  }
+
+  .js .site-nav[data-open] .nav-menu a {
+    padding-block: 0;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
