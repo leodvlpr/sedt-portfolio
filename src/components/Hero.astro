@@ -37,12 +37,10 @@ const secondary = contactLinks.find((link) => link.external);
         pie. Es un recorte sin fondo, en blanco y negro, sobre un panel
         cuadrado que no cambia con el tema. */}
     <figure class="hero__shot wipe" style="--d:420ms;--t:460ms">
-      {/* Formas de fondo: viven dentro del panel, detrás del recorte, así que
-          no pueden descuadrarse respecto a la foto ni salirse del shell. */}
-      <span class="orb orb--halo" aria-hidden="true"></span>
-      <span class="orb orb--sun" aria-hidden="true"></span>
-      <span class="orb orb--orbit" aria-hidden="true"></span>
-      <span class="orb orb--pool" aria-hidden="true"></span>
+      {/* Disco coral detrás del torso: vive dentro del panel, detrás del
+          recorte, así que no puede descuadrarse respecto a la foto ni
+          salirse del shell. */}
+      <span class="hero__disc" aria-hidden="true"></span>
       <img
         src={asset("images/profile_lm.png")}
         alt={`Portrait of ${profile.name}`}
@@ -135,11 +133,9 @@ const secondary = contactLinks.find((link) => link.external);
 
   /* --- Retrato ----------------------------------------------------------- */
 
-  /* El retrato no cambia con el tema: se fijan aquí los tokens semánticos a
-     sus valores claros, y el panel, los trazos y la elipse de suelo heredan
-     esos valores en los dos modos. */
+  /* El retrato no cambia con el tema: el fondo del panel se fija aquí a su
+     valor claro y es el mismo en los dos modos. */
   .hero__shot {
-    --color-ink: var(--color-navy);
     --color-shade: var(--color-stone);
     position: relative;
     margin: 0;
@@ -154,7 +150,7 @@ const secondary = contactLinks.find((link) => link.external);
      margen transparente que la encoja. Apoyada en el canto inferior para que
      no flote; el 92% deja aire sobre la cabeza. Con el panel de escritorio
      (~470px) la foto se pinta por debajo de su tamaño nativo y no pierde
-     definición. `position` la pinta por encima de las formas. */
+     definición. `position` la pinta por encima del disco. */
   .hero__shot img {
     position: absolute;
     right: 0;
@@ -165,54 +161,22 @@ const secondary = contactLinks.find((link) => link.external);
     height: 92%;
     object-fit: contain;
     object-position: center bottom;
-    filter: grayscale(1) contrast(1.04);
+    filter: grayscale(1) contrast(1.12) brightness(1.03);
   }
 
-  /* Círculos y elipses de fondo. Todo en porcentajes del panel, así que
-     escalan con él en cada breakpoint. */
-  .orb {
+  /* Un único disco coral sólido, centrado y detrás del torso: la cabeza
+     sobresale por arriba y el canto inferior del panel lo corta. En
+     porcentajes del panel, así que escala con él en cada breakpoint. */
+  .hero__disc {
     position: absolute;
+    top: 16%;
+    left: 50%;
+    width: 80%;
+    aspect-ratio: 1;
+    translate: -50% 0;
     border-radius: 50%;
-    pointer-events: none;
-  }
-
-  /* Aro grande detrás de la cabeza. */
-  .orb--halo {
-    top: 4%;
-    left: 50%;
-    width: 78%;
-    aspect-ratio: 1;
-    translate: -50% 0;
-    border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
-  }
-
-  /* Disco coral lleno, arriba a la derecha. */
-  .orb--sun {
-    top: 9%;
-    right: 9%;
-    width: 17%;
-    aspect-ratio: 1;
     background: var(--color-coral);
-  }
-
-  /* Elipse en trazo coral que cruza el torso por detrás, inclinada. */
-  .orb--orbit {
-    top: 46%;
-    left: -12%;
-    width: 124%;
-    height: 26%;
-    rotate: -14deg;
-    border: 1px solid var(--color-coral);
-  }
-
-  /* Elipse tonal, plana, a ras del suelo. */
-  .orb--pool {
-    bottom: -6%;
-    left: 50%;
-    width: 92%;
-    height: 16%;
-    translate: -50% 0;
-    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+    pointer-events: none;
   }
 
   /* --- Texto de apoyo ---------------------------------------------------- */
