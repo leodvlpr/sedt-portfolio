@@ -24,7 +24,7 @@ const navLinks = [
 ---
 
 <!doctype html>
-<html lang="es" class="scroll-auto">
+<html lang="en" class="scroll-auto">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,7 +37,7 @@ const navLinks = [
     <meta property="og:type" content="profile" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -56,7 +56,7 @@ const navLinks = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@700;800&display=swap"
     />
 
     {/* Applied before first paint so the theme never flashes. */}
@@ -81,14 +81,14 @@ const navLinks = [
         segunda. En una sola fila los 342px disponibles a 390px de ancho no
         alcanzan y el toggle desbordaba el viewport. */}
     <nav
-      class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-4 px-6 py-8 sm:flex-nowrap sm:px-10"
+      class="shell flex flex-wrap items-center gap-x-6 gap-y-4 py-8 sm:flex-nowrap"
     >
       {/* `home` es la raíz del base; un "/" plano saldría del
           subdirectorio y llevaría a la raíz del dominio. */}
       <a
         href={home}
         class="font-display text-xl font-extrabold tracking-tight"
-        aria-label="leodvlpr — inicio"
+        aria-label="leodvlpr — home"
       >
         <span class="text-ink">leo</span><span class="text-coral"
           >dvlpr</span
@@ -101,7 +101,7 @@ const navLinks = [
         {
           navLinks.map((link) => (
             <li>
-              <a href={link.href} class="hover:text-coral">
+              <a href={link.href} class="ul">
                 {link.label}
               </a>
             </li>
@@ -115,17 +115,15 @@ const navLinks = [
       <button
         type="button"
         id="theme-toggle"
-        aria-label="Cambiar entre modo claro y oscuro"
-        class="order-1 ml-auto grid h-10 w-10 place-items-center rounded-full border border-coral text-coral hover:bg-coral hover:text-paper sm:order-2 sm:ml-0"
+        aria-label="Toggle light and dark mode"
+        class="order-1 ml-auto grid h-10 w-10 place-items-center rounded-full border border-coral text-coral hover:bg-coral hover:text-navy sm:order-2 sm:ml-0"
       >
         <ContactIcon paths={ICONS.moon} class="dark:hidden" />
         <ContactIcon paths={ICONS.sun} class="hidden dark:block" />
       </button>
     </nav>
 
-    <div class="mx-auto w-full max-w-5xl px-6 pb-16 sm:px-10">
-      <slot />
-    </div>
+    <slot />
 
     <script is:inline>
       document

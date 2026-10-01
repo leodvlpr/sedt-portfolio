@@ -1,0 +1,103 @@
+---
+/* Armazón del lenguaje visual de la opción B: raíl estrecho a la izquierda,
+   costura de 1px, panel ancho a la derecha — la forma de un informe de tests.
+   El título va alineado a la DERECHA contra la costura y se queda pegado
+   (sticky) mientras su sección pasa, así la etiqueta nunca se separa de lo que
+   etiqueta. Lo comparten About, Experience, Projects, TechGrid, Recognition,
+   Education y Contact.
+
+   La costura es el `border-left` del panel, no un elemento aparte: como el
+   padding vertical vive dentro del panel, las secciones consecutivas la
+   encadenan y la línea recorre la página entera sin cortes. */
+
+interface Props {
+  /* id del <section>; de él sale el aria-labelledby del encabezado */
+  id: string;
+  title: string;
+  /* `shade` saca el fondo de banda a todo el ancho (la única variante tonal) */
+  tone?: "surface" | "shade";
+  as?: "section" | "footer";
+}
+
+const { id, title, tone = "surface", as: Tag = "section" } = Astro.props;
+---
+
+<Tag id={id} aria-labelledby={`${id}-title`} class:list={["sec", tone === "shade" && "is-shade"]}>
+  <div class="shell sec__grid">
+    <div class="sec__rail">
+      <div class="sec__pin">
+        <h2 id={`${id}-title`} class="sec__title">{title}</h2>
+      </div>
+    </div>
+
+    <div class="sec__body">
+      <slot />
+    </div>
+  </div>
+</Tag>
+
+<style>
+  .sec {
+    background: var(--color-surface);
+  }
+
+  .is-shade {
+    background: var(--color-shade);
+  }
+
+  .sec__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sec__rail {
+    padding-top: 3rem;
+  }
+
+  .sec__title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .sec__body {
+    position: relative;
+    padding-top: 1.25rem;
+    padding-bottom: 3rem;
+  }
+
+  @media (min-width: 900px) {
+    .sec__grid {
+      grid-template-columns: var(--rail) minmax(0, 1fr);
+    }
+
+    .sec__rail {
+      padding: 4.5rem 2rem 4.5rem 0;
+      text-align: right;
+    }
+
+    .sec__pin {
+      position: sticky;
+      top: 3rem;
+    }
+
+    .sec__body {
+      padding: 4.5rem 0 4.5rem 2.5rem;
+      border-left: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    }
+
+    /* La marca de la costura: un cuadrado coral a la altura en la que arranca
+       el contenido. Señala el límite de sección, no decora. */
+    .sec__body::before {
+      content: "";
+      position: absolute;
+      left: -3px;
+      top: 4.5rem;
+      width: 5px;
+      height: 5px;
+      background: var(--color-coral);
+    }
+  }
+</style>

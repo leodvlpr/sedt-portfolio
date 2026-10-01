@@ -1,6 +1,6 @@
 ---
 import content from "../data/content.json";
-import SectionHeading from "./SectionHeading.astro";
+import Section from "./Section.astro";
 import { asset } from "../lib/asset";
 
 /* `video` y `poster` son opcionales: un proyecto sin demo renderiza la ficha
@@ -17,31 +17,21 @@ type Project = {
 const projects: Project[] = content.projects;
 ---
 
-<section id="projects" aria-labelledby="projects-title" class="py-14">
-  <SectionHeading title="Projects" id="projects" />
-
-  {/* Columna única a la medida de About: con un solo proyecto una rejilla
-      ancha dejaría la ficha suelta en medio del hueco. Cuando la lista crezca
-      las fichas se apilan sin tocar el layout. */}
-  <ul class="mt-6 flex max-w-2xl flex-col gap-4">
+<Section id="projects" title="Projects">
+  <ul class="cards">
     {
       projects.map((project, i) => {
         const videoId = `project-video-${i}`;
 
         return (
-          <li class="rounded-sm border border-ink/15 px-4 py-4">
-            <h3 class="font-medium">{project.name}</h3>
+          <li class="card">
+            <h3 class="card__name">{project.name}</h3>
 
-            <p class="mt-2 text-sm leading-relaxed text-ink/70">
-              {project.description}
-            </p>
+            <p class="card__text">{project.description}</p>
 
-            {/* Mismas etiquetas que TechGrid. */}
-            <ul class="mt-4 flex flex-wrap gap-2">
+            <ul class="chips">
               {project.stack.map((item) => (
-                <li class="rounded-xs border border-ink/20 px-2.5 py-1 text-sm text-ink/70">
-                  {item}
-                </li>
+                <li>{item}</li>
               ))}
             </ul>
 
@@ -50,12 +40,12 @@ const projects: Project[] = content.projects;
                 pide ni un byte del mp4; el navegador sólo lo busca cuando el
                 usuario le da a reproducir. */}
             {project.video && (
-              <div class="mt-4" data-video-card>
+              <div class="demo" data-video-card>
                 <button
                   type="button"
+                  class="demo__trigger"
                   data-video-play
                   aria-controls={videoId}
-                  class="group block w-full overflow-hidden rounded-xs border border-ink/15 hover:border-coral"
                 >
                   {project.poster && (
                     <img
@@ -65,12 +55,9 @@ const projects: Project[] = content.projects;
                       height="682"
                       loading="lazy"
                       decoding="async"
-                      class="block w-full"
                     />
                   )}
-                  <span class="block border-t border-ink/15 px-3 py-2 text-sm text-ink/70 group-hover:text-coral">
-                    Watch demo
-                  </span>
+                  <span class="demo__label">Watch the suite run</span>
                 </button>
 
                 <video
@@ -80,7 +67,6 @@ const projects: Project[] = content.projects;
                   controls
                   preload="none"
                   poster={project.poster ? asset(project.poster) : undefined}
-                  class="block w-full rounded-xs border border-ink/15"
                 >
                   <source src={asset(project.video)} type="video/mp4" />
                 </video>
@@ -88,10 +74,10 @@ const projects: Project[] = content.projects;
             )}
 
             <a
+              class="card__link ul"
               href={project.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="mt-4 inline-block border-b-2 border-coral pb-0.5 text-sm hover:text-coral"
             >
               View on GitHub
             </a>
@@ -100,7 +86,7 @@ const projects: Project[] = content.projects;
       })
     }
   </ul>
-</section>
+</Section>
 
 {/* Revelar, no reproducir: el vídeo aparece con sus controles y es el usuario
     quien pulsa play. Nada se reproduce solo. */}
@@ -117,3 +103,128 @@ const projects: Project[] = content.projects;
     });
   });
 </script>
+
+<style>
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 44rem;
+  }
+
+  /* La única tarjeta de la página, y a escuadra: el radio queda reservado
+     para lo que se pulsa. */
+  .card {
+    position: relative;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    padding: 1.5rem;
+  }
+
+  /* Misma regla coral que el resto de hovers, aquí sobre el canto superior
+     de la ficha. */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset-inline: -1px;
+    top: -1px;
+    height: 2px;
+    background: var(--color-coral);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .card:hover::before,
+  .card:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .card__name {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .card__text {
+    margin-top: 0.65rem;
+    max-width: 62ch;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  /* Las fichas de stack no son interactivas, así que no llevan hover. */
+  .chips li {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    border-radius: 9999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+
+  .demo {
+    margin-top: 1.5rem;
+  }
+
+  .demo__trigger {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background: none;
+    padding: 0;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .demo__trigger img {
+    display: block;
+    width: 100%;
+  }
+
+  .demo__label {
+    display: block;
+    border-top: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    padding: 0.6rem 0.85rem;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  .demo__trigger:hover,
+  .demo__trigger:focus-visible {
+    border-color: var(--color-coral);
+  }
+
+  .demo__trigger:hover .demo__label {
+    border-top-color: var(--color-coral);
+    color: var(--color-ink);
+  }
+
+  .demo video {
+    display: block;
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  }
+
+  .card__link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card::before {
+      transition: transform 260ms var(--ease);
+    }
+  }
+</style>
