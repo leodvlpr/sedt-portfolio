@@ -20,10 +20,14 @@
     { "company": "Rappi", "role": "QA Engineer", "domain": "rappi.com" }
   ],
   "technologies": {
-    "testing_automation": ["Cypress", "Playwright", "Selenium", "Appium", "Karate", "Cucumber/Gherkin"],
+    "testing_automation": ["Cypress", "Playwright", "Selenium", "Appium", "Karate", "Cucumber/Gherkin", "Puppeteer"],
+    "api_testing": ["Postman", "REST/SOAP", "API Contract Testing"],
     "performance": ["JMeter", "Locust", "Grafana k6"],
-    "test_management": ["TestLink", "Zephyr", "Xray"],
-    "ci_cd": ["GitHub Actions", "Claude Code (CI/CD)"]
+    "test_management": ["TestLink", "Zephyr", "Xray", "Jira"],
+    "programming": ["JavaScript", "TypeScript", "Python", "Java"],
+    "ci_cd_devops": ["GitHub Actions", "Jenkins", "Git", "Docker", "AWS"],
+    "ai_augmented_qa": ["Claude Code (CI/CD)", "GitHub Copilot", "Prompt Engineering"],
+    "leadership_process": ["Team Leadership & Mentoring", "Quality Strategy", "Agile/Scrum", "Risk-Based Testing", "KPI & Quality Metrics", "Stakeholder Communication", "ISO Compliance"]
   },
   "recognition": [
     "Cypress Ambassador (2024–2026, second consecutive year)",
