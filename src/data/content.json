@@ -41,7 +41,35 @@
       "stack": ["Playwright", "TypeScript", "GitHub Actions", "Claude Code"],
       "url": "https://github.com/leodvlpr/saucedemo-playwright-framework",
       "video": "videos/test-run.mp4",
-      "poster": "images/test-run-poster.jpg"
+      "poster": "images/test-run-poster.jpg",
+      "status": "live"
+    },
+    {
+      "name": "Cypress Framework",
+      "description": "BDD end-to-end (E2E) automation framework written in Gherkin and built on Cypress + TypeScript, organised as interaction components and business flows instead of Page Objects, with API seeding and per-scenario test data.",
+      "stack": ["Cypress", "TypeScript", "Cucumber", "Gherkin"],
+      "url": "https://github.com/leodvlpr/cypress-bdd",
+      "video": "videos/cypress-test-run.mp4",
+      "poster": "images/cypress-test-run-poster.jpg",
+      "status": "live"
+    },
+    {
+      "name": "Maestro Framework",
+      "description": "TBD",
+      "stack": ["Maestro"],
+      "status": "coming-soon"
+    },
+    {
+      "name": "Karate Framework",
+      "description": "TBD",
+      "stack": ["Karate"],
+      "status": "coming-soon"
+    },
+    {
+      "name": "Performance",
+      "description": "TBD",
+      "stack": [],
+      "status": "coming-soon"
     }
   ]
 }

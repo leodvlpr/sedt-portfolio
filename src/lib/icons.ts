@@ -4,7 +4,16 @@
    Sin `as const`: con él cada entrada se infiere como tupla readonly y deja
    de ser asignable al `string[]` que esperan los props. */
 export const ICONS: Record<
-  "mail" | "linkedin" | "github" | "sun" | "moon" | "play" | "menu" | "x",
+  | "mail"
+  | "linkedin"
+  | "github"
+  | "sun"
+  | "moon"
+  | "play"
+  | "menu"
+  | "x"
+  | "chevronLeft"
+  | "chevronRight",
   string[]
 > = {
   mail: [
@@ -33,4 +42,6 @@ export const ICONS: Record<
   play: ["M7 4v16l13 -8z"],
   menu: ["M4 6h16", "M4 12h16", "M4 18h16"],
   x: ["M18 6l-12 12", "M6 6l12 12"],
+  chevronLeft: ["M15 6l-6 6l6 6"],
+  chevronRight: ["M9 6l6 6l-6 6"],
 };

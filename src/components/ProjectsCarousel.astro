@@ -1,0 +1,593 @@
+---
+import content from "../data/content.json";
+import ContactIcon from "./ContactIcon.astro";
+import { ICONS } from "../lib/icons";
+import { asset } from "../lib/asset";
+
+/* `status` decide la ficha: "live" pinta la demo y el enlace al repositorio;
+   "coming-soon" conserva la misma carcasa con un hueco en lugar del vídeo y
+   el botón presente pero desactivado, salvo que ya tenga `url`: el
+   repositorio puede existir antes que la demo. `video` y `poster` sólo
+   existen en los proyectos publicados. */
+type Project = {
+  name: string;
+  description: string;
+  stack: string[];
+  status: string;
+  url?: string;
+  video?: string;
+  poster?: string;
+};
+
+const projects: Project[] = content.projects;
+const total = projects.length;
+---
+
+{/* Sin JS no hay carrusel: las fichas se apilan como lista y los controles
+    no se pintan (ver `.js` en los estilos). Con JS, la pista se pone en fila
+    y sólo se ve una ficha a la vez. */}
+<div
+  class="carousel"
+  data-carousel
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="Projects"
+  tabindex="0"
+>
+  <div class="carousel__viewport" data-viewport>
+    <ul class="carousel__track" data-track aria-live="off">
+      {
+        projects.map((project, i) => {
+          const live = project.status === "live";
+          const videoId = `project-video-${i}`;
+
+          return (
+            <li
+              class:list={["card", !live && "card--soon"]}
+              data-slide
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${i + 1} of ${total}`}
+            >
+              <h3 class="card__name">{project.name}</h3>
+
+              <p class="card__text">{project.description}</p>
+
+              {project.stack.length > 0 && (
+                <ul class="chips">
+                  {project.stack.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Estado por defecto: miniatura estática. El <video> va al
+                  margen con preload="none" y hidden, así que al cargar la
+                  página no se pide ni un byte del mp4; el navegador sólo lo
+                  busca cuando el usuario le da a reproducir. */}
+              {live && project.video && (
+                <div class="demo" data-video-card>
+                  <button
+                    type="button"
+                    class="demo__trigger"
+                    data-video-play
+                    aria-controls={videoId}
+                    aria-label={`Play the ${project.name} demo`}
+                  >
+                    {project.poster && (
+                      <img
+                        src={asset(project.poster)}
+                        alt=""
+                        width="1280"
+                        height="682"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+
+                    <span class="icon-btn demo__play" aria-hidden="true">
+                      <ContactIcon paths={ICONS.play} />
+                    </span>
+                  </button>
+
+                  <video
+                    id={videoId}
+                    data-video
+                    hidden
+                    controls
+                    preload="none"
+                    poster={project.poster ? asset(project.poster) : undefined}
+                  >
+                    <source src={asset(project.video)} type="video/mp4" />
+                  </video>
+                </div>
+              )}
+
+              {/* Hueco con la proporción de la miniatura real, para que todas
+                  las fichas midan lo mismo y el carrusel no salte de alto. */}
+              {!live && (
+                <div class="demo">
+                  <div class="soon">
+                    <span>Coming soon</span>
+                  </div>
+                </div>
+              )}
+
+              {/* El rótulo pasa a icono en la esquina inferior derecha. Al no
+                  quedar texto visible, el nombre accesible lo da aria-label y
+                  nombra el proyecto, no un genérico "GitHub". En las fichas
+                  pendientes sin `url` el botón está pero no enlaza: sin href,
+                  con aria-disabled y atenuado. */}
+              <div class="card__foot">
+                {project.url ? (
+                  <a
+                    class="icon-btn"
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View ${project.name} on GitHub`}
+                  >
+                    <ContactIcon paths={ICONS.github} />
+                  </a>
+                ) : (
+                  <a
+                    class="icon-btn is-disabled"
+                    role="link"
+                    aria-disabled="true"
+                    aria-label={`${project.name} repository, coming soon`}
+                  >
+                    <ContactIcon paths={ICONS.github} />
+                  </a>
+                )}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+
+  <div class="carousel__controls">
+    <div class="dots" role="group" aria-label="Choose a project">
+      {
+        projects.map((project, i) => (
+          <button
+            type="button"
+            class="dot"
+            data-dot
+            aria-label={`Show project ${i + 1} of ${total}: ${project.name}`}
+            aria-current={i === 0 ? "true" : undefined}
+          />
+        ))
+      }
+    </div>
+
+    <div class="arrows">
+      <button
+        type="button"
+        class="icon-btn"
+        data-prev
+        aria-label="Previous project"
+      >
+        <ContactIcon paths={ICONS.chevronLeft} />
+      </button>
+      <button type="button" class="icon-btn" data-next aria-label="Next project">
+        <ContactIcon paths={ICONS.chevronRight} />
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* Un único gesto para la demo: el clic revela el vídeo Y lo arranca. El mp4
+     sigue con preload="none" y no se pide hasta ese clic. */
+  const playVideo = (card: HTMLElement) => {
+    const trigger = card.querySelector<HTMLButtonElement>("[data-video-play]");
+    const video = card.querySelector<HTMLVideoElement>("[data-video]");
+    if (!trigger || !video) return;
+    video.hidden = false;
+    trigger.hidden = true;
+    video.focus();
+    /* play() puede rechazarse (códec no soportado, por ejemplo); si falla, el
+       vídeo ya está visible con sus propios controles. */
+    void video.play().catch(() => {});
+  };
+
+  const root = document.querySelector<HTMLElement>("[data-carousel]");
+  const track = root?.querySelector<HTMLElement>("[data-track]");
+  const viewport = root?.querySelector<HTMLElement>("[data-viewport]");
+  const prev = root?.querySelector<HTMLButtonElement>("[data-prev]");
+  const next = root?.querySelector<HTMLButtonElement>("[data-next]");
+
+  if (root && track && viewport && prev && next) {
+    const slides = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-slide]"),
+    );
+    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-dot]"));
+
+    let index = 0;
+    let timer: number | undefined;
+    let hovering = false;
+    let focused = false;
+
+    /* Con movimiento reducido no hay avance automático en absoluto; la
+       navegación manual sigue igual. */
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    /* `stopped` es definitivo: lo pone cualquier gesto deliberado del usuario
+       y el carrusel no vuelve a avanzar solo. */
+    let stopped = reduce.matches;
+
+    const show = (to: number) => {
+      index = (to + slides.length) % slides.length;
+      track.style.setProperty("--i", String(index));
+      slides.forEach((slide, n) => {
+        const current = n === index;
+        /* Las fichas fuera de vista no reciben foco ni las lee el lector de
+           pantalla; si había una demo sonando, se pausa. */
+        slide.toggleAttribute("inert", !current);
+        if (!current) slide.querySelector("video")?.pause();
+      });
+      dots.forEach((dot, n) => {
+        if (n === index) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      if (stopped || hovering || focused) return;
+      timer = window.setTimeout(() => {
+        /* Con la pestaña en segundo plano no avanza: se reprograma y ya. */
+        if (!document.hidden) show(index + 1);
+        schedule();
+      }, 7000);
+    };
+
+    /* Mientras rota solo, la región no anuncia nada (sería ruido cada 7 s);
+       una vez que manda el usuario, cada cambio se anuncia con educación. */
+    const stop = () => {
+      stopped = true;
+      window.clearTimeout(timer);
+      track.setAttribute("aria-live", "polite");
+    };
+
+    const go = (to: number) => {
+      stop();
+      show(to);
+    };
+
+    prev.addEventListener("click", () => go(index - 1));
+    next.addEventListener("click", () => go(index + 1));
+    dots.forEach((dot, n) => dot.addEventListener("click", () => go(n)));
+
+    /* Flechas del teclado con el foco dentro del carrusel. Dentro de un
+       <video> no: ahí las flechas ya sirven para avanzar en la reproducción. */
+    root.addEventListener("keydown", (event) => {
+      if (event.target instanceof HTMLVideoElement) return;
+      if (event.key === "ArrowLeft") go(index - 1);
+      else if (event.key === "ArrowRight") go(index + 1);
+      else return;
+      event.preventDefault();
+    });
+
+    /* Deslizar en táctil: cuenta como gesto si es sobre todo horizontal, así
+       el scroll vertical de la página no cambia de ficha por accidente. */
+    let startX = 0;
+    let startY = 0;
+    viewport.addEventListener(
+      "touchstart",
+      (event) => {
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+      },
+      { passive: true },
+    );
+    viewport.addEventListener(
+      "touchend",
+      (event) => {
+        const dx = event.changedTouches[0].clientX - startX;
+        const dy = event.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        go(dx < 0 ? index + 1 : index - 1);
+      },
+      { passive: true },
+    );
+
+    /* Pausa, no parada: al salir el ratón o el foco vuelve a contar 7 s. */
+    root.addEventListener("pointerenter", () => {
+      hovering = true;
+      schedule();
+    });
+    root.addEventListener("pointerleave", () => {
+      hovering = false;
+      schedule();
+    });
+    root.addEventListener("focusin", () => {
+      focused = true;
+      schedule();
+    });
+    root.addEventListener("focusout", (event) => {
+      if (root.contains(event.relatedTarget as Node | null)) return;
+      focused = false;
+      schedule();
+    });
+
+    reduce.addEventListener("change", () => {
+      if (reduce.matches) stop();
+    });
+
+    /* Reproducir la demo es un gesto deliberado: el carrusel deja de avanzar
+       para no esconder el vídeo a mitad. */
+    root.querySelectorAll<HTMLElement>("[data-video-card]").forEach((card) => {
+      card
+        .querySelector("[data-video-play]")
+        ?.addEventListener("click", () => {
+          stop();
+          playVideo(card);
+        });
+    });
+
+    if (stopped) track.setAttribute("aria-live", "polite");
+    show(0);
+    schedule();
+  }
+</script>
+
+<style>
+  .carousel {
+    max-width: 44rem;
+  }
+
+  /* `clip` sólo en horizontal: oculta las fichas vecinas sin recortar por
+     arriba la regla coral del hover, que asoma 1px sobre el canto. */
+  .carousel__viewport {
+    overflow-x: clip;
+  }
+
+  /* Sin JS: lista apilada, como antes de haber carrusel. */
+  .carousel__track {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Con JS: una fila de fichas a todo el ancho, desplazada por --i. Las
+     fichas se estiran a la más alta, así que el carrusel no cambia de alto
+     al pasar de una a otra. */
+  :global(.js) .carousel__track {
+    flex-direction: row;
+    gap: 0;
+    transform: translateX(calc(var(--i, 0) * -100%));
+  }
+
+  :global(.js) .carousel__track > li {
+    flex: 0 0 100%;
+  }
+
+  /* La única tarjeta de la página, y a escuadra: el radio queda reservado
+     para lo que se pulsa. Columna flexible para que el botón del pie quede
+     siempre abajo aunque la ficha sea más corta que la vecina. */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    padding: 1.5rem;
+  }
+
+  /* Misma regla coral que el resto de hovers, aquí sobre el canto superior
+     de la ficha. Las pendientes no tienen nada que pulsar, así que no la
+     llevan. */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset-inline: -1px;
+    top: -1px;
+    height: 2px;
+    background: var(--color-coral);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .card:not(.card--soon):hover::before,
+  .card:not(.card--soon):focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .card__name {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .card__text {
+    margin-top: 0.65rem;
+    max-width: 62ch;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  /* Las fichas de stack no son interactivas, así que no llevan hover. */
+  .chips li {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    border-radius: 9999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+
+  .demo {
+    margin-top: 1.5rem;
+  }
+
+  .demo__trigger {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background: none;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .demo__trigger img {
+    display: block;
+    width: 100%;
+  }
+
+  /* El disco lo da `.icon-btn`; aquí sólo el centrado sobre la miniatura.
+     inset + margin auto evita un transform, que chocaría con el sistema de
+     movimiento. */
+  .demo__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    /* Compensa el centro óptico del triángulo. */
+    padding-left: 0.15rem;
+  }
+
+  .demo__trigger:hover,
+  .demo__trigger:focus-visible {
+    border-color: var(--color-coral);
+  }
+
+  /* El disco es un <span> dentro del botón, así que el hover se escucha en
+     el botón y no en el propio disco. */
+  .demo__trigger:hover .demo__play,
+  .demo__trigger:focus-visible .demo__play {
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+
+  .demo video {
+    display: block;
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  }
+
+  /* Hueco de "próximamente": mismo filete y misma proporción que la
+     miniatura (1280×682), con un fondo apagado y el rótulo en tinta. */
+  .soon {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1280 / 682;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  }
+
+  .card__foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  /* En las pendientes el hueco baja al pie: así ocupa exactamente el sitio
+     que el vídeo ocupa en la ficha publicada y nada salta al pasar de una a
+     otra; el espacio que sobra queda entre el texto y el hueco. */
+  .card--soon .demo {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .card--soon .card__foot {
+    margin-top: 0;
+  }
+
+  /* Presente pero inerte: atenuado, sin cambio en hover y con el cursor
+     diciendo que no se puede pulsar. */
+  .icon-btn.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .icon-btn.is-disabled:hover {
+    background: var(--color-coral);
+    color: var(--color-navy);
+  }
+
+  /* --- Controles --------------------------------------------------------- */
+
+  .carousel__controls {
+    display: none;
+  }
+
+  :global(.js) .carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .dots {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* Objetivo táctil de 24px; el punto visible es el ::before. La ficha en
+     pantalla se alarga a píldora coral: el cambio de forma la marca, no sólo
+     el color. */
+  .dot {
+    display: grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .dot::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  }
+
+  .dot:hover::before {
+    background: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+
+  /* El botón activo crece con la píldora para que quede el mismo aire a cada
+     lado que entre los puntos. */
+  .dot[aria-current] {
+    min-width: 2.5rem;
+  }
+
+  .dot[aria-current]::before {
+    width: 1.5rem;
+    background: var(--color-coral);
+  }
+
+  .arrows {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card::before {
+      transition: transform 260ms var(--ease);
+    }
+
+    :global(.js) .carousel__track {
+      transition: transform 480ms var(--ease);
+    }
+  }
+</style>
