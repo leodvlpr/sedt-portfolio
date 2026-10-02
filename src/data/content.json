@@ -59,9 +59,10 @@
     },
     {
       "name": "Maestro Framework",
-      "description": "TBD",
-      "stack": ["Maestro"],
-      "status": "coming-soon"
+      "description": "Production-oriented mobile end-to-end (E2E) automation framework built with Maestro, using a public sample app as the initial SUT. Organised around executable smoke and regression journeys, reusable subflows, platform adapters, runtime configuration, and isolated test data—designed to support Android/iOS.",
+      "stack": ["Maestro", "YAML", "Javascript", "Android", "iOS"],
+      "url": "https://github.com/leodvlpr/maestro-framework",
+      "status": "live"
     },
     {
       "name": "Karate Framework",
