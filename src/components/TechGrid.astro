@@ -3,17 +3,24 @@ import content from "../data/content.json";
 import Section from "./Section.astro";
 
 /* Etiquetas de presentación para las claves de content.json.technologies.
-   Cualquier clave nueva cae al fallback (guiones bajos -> espacios). */
+   Cualquier clave nueva cae al fallback (guiones bajos -> espacios, cada
+   palabra con mayúscula inicial). */
 const labels: Record<string, string> = {
   testing_automation: "Testing & Automation",
+  api_testing: "API Testing",
   performance: "Performance",
-  test_management: "Test management",
-  ci_cd: "CI/CD",
+  test_management: "Test Management",
+  programming: "Programming",
+  ci_cd_devops: "CI/CD/DevOps",
+  ai_augmented_qa: "AI-Augmented QA",
+  leadership_process: "Leadership & Process",
 };
 
 const groups = Object.entries(content.technologies) as [string, string[]][];
 
-const labelFor = (key: string) => labels[key] ?? key.replace(/_/g, " ");
+const labelFor = (key: string) =>
+  labels[key] ??
+  key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 ---
 
 {/* La sección más densa de la página es también la única con fondo propio:

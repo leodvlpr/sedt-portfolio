@@ -119,7 +119,7 @@ Two things in [src/components/Experience.astro](src/components/Experience.astro)
 - Softvision points at `cognizant.com`. Intentional — the acquiring company.
 - Logos come from `icons.duckduckgo.com/ip3/{domain}.ico`, not Clearbit. `logo.clearbit.com` stopped resolving at the DNS level after HubSpot discontinued the Logo API, so the original approach rendered five permanently broken images. An `onerror` removes the image and reveals a monogram underneath, so a future outage degrades instead of breaking. The logo is also hidden until hover/focus — but only under `@media (hover: hover)`, so pointerless devices show it from the start and lose nothing. Entries whose `domain` is missing or empty render with no logo and no link.
 
-Category labels in [src/components/TechGrid.astro](src/components/TechGrid.astro) are a presentation map over the JSON keys (`testing_automation` → "Testing & Automatización"), with a fallback for unmapped keys.
+Category labels in [src/components/TechGrid.astro](src/components/TechGrid.astro) are a presentation map over the JSON keys (`testing_automation` → "Testing & Automation", `ci_cd_devops` → "CI/CD/DevOps"), with a fallback for unmapped keys.
 
 The design plan behind all of the above, including the pass that reviewed it against generic-AI-design tells, is [docs/design/option-b-plan.md](docs/design/option-b-plan.md).
 
